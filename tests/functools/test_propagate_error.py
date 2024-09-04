@@ -15,6 +15,7 @@ def test_success() -> None:
             assert value == 2
         # Important boilerplate that says all uncaught exceptions should be raised, and raised explicitly,
         # though in this trivial example we'll never reach this point.
+        # BEST PRACTICE: Always include this boilerplate in your match statements to raise uncaught exceptions.
         case uncaught_exception:
             raise uncaught_exception
 

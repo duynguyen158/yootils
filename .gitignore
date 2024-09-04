@@ -1,0 +1,8 @@
+.*
+
+# Git
+!.gitignore
+
+# Python
+__pycache__
+!.pre-commit-config.yaml

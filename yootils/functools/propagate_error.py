@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from functools import wraps
 from typing import Generic, ParamSpec, TypeVar
@@ -37,6 +37,31 @@ class propagate_error(Generic[_E]):
         def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> Success[_R] | _E | Exception:
             try:
                 return Success(func(*args, **kwargs))
+            except Exception as e:
+                return e
+
+        return wrapper
+
+
+class propagate_error_async(Generic[_E]):
+    """
+    Error-propagation decorator for async functions.
+    """
+
+    def __call__(self, func: Callable[_P, Awaitable[_R]]) -> Callable[_P, Awaitable[Success[_R] | _E | Exception]]:
+        """Inner decorator that wraps the async function and returns a Success instance if the function runs successfully, or an exception if it fails.
+
+        Args:
+            func (Callable[_P, Awaitable[_R]]): The async function to be wrapped.
+
+        Returns:
+            Callable[_P, Awaitable[Success[_R] | _E | Exception]]: The wrapped async function.
+        """
+
+        @wraps(func)
+        async def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> Success[_R] | _E | Exception:
+            try:
+                return Success(await func(*args, **kwargs))
             except Exception as e:
                 return e
 

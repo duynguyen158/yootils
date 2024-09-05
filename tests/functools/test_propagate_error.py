@@ -19,9 +19,9 @@ def test_success() -> None:
     match func(1):
         case Success(value):
             assert value == 2
-        # Important boilerplate that says all uncaught exceptions should be raised, and raised explicitly,
-        # though in this trivial example we'll never reach this point.
+        # Important boilerplate that says all uncaught exceptions should be raised, and raised explicitly, though in this trivial example we'll never reach this point.
         # BEST PRACTICE: Always include this boilerplate in your match statements to raise uncaught exceptions.
+        # `case Exception() as uncaught_exception:` will also work
         case uncaught_exception:
             raise uncaught_exception
 
@@ -52,8 +52,8 @@ def test_failure_uncaught_exception() -> None:
         case ZeroDivisionError():
             raise ThisShouldNotHappen()
         case uncaught_exception:
-            assert isinstance(uncaught_exception, ValueError)
-            assert str(uncaught_exception) == "Uncaught exception"
+            with pytest.raises(ValueError, match="Uncaught exception"):
+                raise uncaught_exception
 
 
 @pytest.mark.asyncio
@@ -66,7 +66,8 @@ async def test_async_success() -> None:
         case Success(value):
             assert value == 2
         # Trivial; we'll never reach this point.
-        case uncaught_exception:
+        # Interestingly, doing this is fine with mypy but `case uncaught_exception:` makes mypy complain "error: Exception must be derived from BaseException," which doesn't happen in the synchronous version.
+        case Exception() as uncaught_exception:
             raise uncaught_exception
 
 
@@ -81,7 +82,7 @@ async def test_async_failure_caught_exception() -> None:
             raise ThisShouldNotHappen()
         case ZeroDivisionError():
             pass
-        case uncaught_exception:
+        case Exception() as uncaught_exception:
             raise uncaught_exception
 
 
@@ -97,6 +98,6 @@ async def test_async_failure_uncaught_exception() -> None:
             raise ThisShouldNotHappen()
         case ZeroDivisionError():
             raise ThisShouldNotHappen()
-        case uncaught_exception:
-            assert isinstance(uncaught_exception, ValueError)
-            assert str(uncaught_exception) == "Uncaught exception"
+        case Exception() as uncaught_exception:
+            with pytest.raises(ValueError, match="Uncaught exception"):
+                raise uncaught_exception

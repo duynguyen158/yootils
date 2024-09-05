@@ -10,7 +10,7 @@ def test_utcdatetime_as_date() -> None:
     assert timestamp.tzinfo == UTC
 
     # Check created timestamp is close to expected time
-    assert timestamp == datetime(2021, 1, 1, tzinfo=UTC)
+    assert timestamp == datetime(2021, 1, 1, 0, 0, 0, tzinfo=UTC)
 
 
 def test_utcdatetime_as_timestamp() -> None:

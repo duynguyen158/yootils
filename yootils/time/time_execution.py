@@ -20,11 +20,11 @@ class _TimerState(IntEnum):
 _S = TypeVar("_S", bound=_TimerState)
 
 
-@dataclass
+@dataclass(slots=True)
 class _Timer(Generic[_S]):
     """
     Class that times the execution of a block of code and stores seconds elapsed.
-    Uses typestate pattern to ensure that it should only be used once.
+    Uses typestate pattern to discourage (but not prevent) it from being used more than once.
     """
 
     seconds: float = 0

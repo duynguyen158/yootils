@@ -6,3 +6,6 @@
 # Python
 __pycache__
 !.pre-commit-config.yaml
+
+# Zed
+pyrightconfig.json

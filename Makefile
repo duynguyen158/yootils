@@ -27,3 +27,16 @@ lint: # Lint the code
 
 test: # Run the tests
 	pytest --cov=yootils/ tests/
+
+# RELEASE
+.PHONY: release
+
+release: # Release a new version. It'll ask whether you've bumped the version in the pyproject.toml file.
+	@read -p "Have you bumped the version number in pyproject.toml? (y/n) " answer && \
+	case $$answer in \
+	 [Yy]* ) echo "Proceeding with release..."; break;; \
+	 [Nn]* ) echo "Please bump the version number first."; exit 1;; \
+	 * ) echo "Please answer yes or no.";; \
+	esac
+	git tag -a $(VERSION) -m "Release $(VERSION)"
+	git push origin $(VERSION)

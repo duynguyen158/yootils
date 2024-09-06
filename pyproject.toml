@@ -45,3 +45,6 @@ profile = "black"
 strict = true
 files = "."
 exclude = ['\.venv']
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"

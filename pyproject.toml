@@ -10,7 +10,7 @@ repository = "https://github.com/duynguyen158/yootils"
 packages = [{ include = "yootils" }, { include = "yootils/py.typed" }]
 
 [tool.poetry.dependencies]
-python = ">=3.11, <3.12"
+python = ">=3.11, <3.13"
 google-auth = "^2.34.0"
 aiohttp = "^3.10.5"
 urllib3 = "^2.2.2"

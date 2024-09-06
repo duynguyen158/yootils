@@ -3,6 +3,9 @@
 # Git
 !.gitignore
 
+# GitHub
+!.github/
+
 # Python
 __pycache__
 !.pre-commit-config.yaml

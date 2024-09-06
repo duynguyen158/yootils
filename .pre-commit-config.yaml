@@ -1,0 +1,12 @@
+# pre-commit, once installed, runs these specified tools to format/lint/check our code for a consistent standard.
+# see https://pre-commit.com/ for more
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.6.4
+    hooks:
+      # Run the checker
+      - id: ruff
+        args: [--fix]
+      # Run the formatter.
+      - id: ruff-format

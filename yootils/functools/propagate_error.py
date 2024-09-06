@@ -23,7 +23,9 @@ class propagate_error(Generic[_E]):
     The exception type is specified as a type argument, used to type hint the return value of the decorated function for downstream match statements. (See the corresponding test for usage.)
     """
 
-    def __call__(self, func: Callable[_P, _R]) -> Callable[_P, Success[_R] | _E | Exception]:
+    def __call__(
+        self, func: Callable[_P, _R]
+    ) -> Callable[_P, Success[_R] | _E | Exception]:
         """Inner decorator that wraps the function and returns a Success instance if the function runs successfully, or an exception if it fails.
 
         Args:
@@ -34,7 +36,9 @@ class propagate_error(Generic[_E]):
         """
 
         @wraps(func)
-        def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> Success[_R] | _E | Exception:
+        def wrapper(
+            *args: _P.args, **kwargs: _P.kwargs
+        ) -> Success[_R] | _E | Exception:
             try:
                 return Success(func(*args, **kwargs))
             except Exception as e:
@@ -48,7 +52,9 @@ class propagate_error_async(Generic[_E]):
     Error-propagation decorator for async functions.
     """
 
-    def __call__(self, func: Callable[_P, Awaitable[_R]]) -> Callable[_P, Awaitable[Success[_R] | _E | Exception]]:
+    def __call__(
+        self, func: Callable[_P, Awaitable[_R]]
+    ) -> Callable[_P, Awaitable[Success[_R] | _E | Exception]]:
         """Inner decorator that wraps the async function and returns a Success instance if the function runs successfully, or an exception if it fails.
 
         Args:
@@ -59,7 +65,9 @@ class propagate_error_async(Generic[_E]):
         """
 
         @wraps(func)
-        async def wrapper(*args: _P.args, **kwargs: _P.kwargs) -> Success[_R] | _E | Exception:
+        async def wrapper(
+            *args: _P.args, **kwargs: _P.kwargs
+        ) -> Success[_R] | _E | Exception:
             try:
                 return Success(await func(*args, **kwargs))
             except Exception as e:

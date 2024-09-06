@@ -2,7 +2,13 @@ from datetime import UTC, datetime
 
 
 def utcdatetime(
-    year: int, month: int, day: int, hour: int = 0, minute: int = 0, second: int = 0, microsecond: int = 0
+    year: int,
+    month: int,
+    day: int,
+    hour: int = 0,
+    minute: int = 0,
+    second: int = 0,
+    microsecond: int = 0,
 ) -> datetime:
     """Generate a datetime object in UTC timezone.
 

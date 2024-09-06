@@ -36,7 +36,9 @@ class _Timer(Generic[_S]):
     seconds_elapsed: float = 0
 
     @contextmanager
-    def __call__(self: _Timer[Literal[_TimerState.STARTED]]) -> Iterator[_Timer[Literal[_TimerState.STOPPED]]]:
+    def __call__(
+        self: _Timer[Literal[_TimerState.STARTED]],
+    ) -> Iterator[_Timer[Literal[_TimerState.STOPPED]]]:
         """Times the execution.
 
         Yields:
@@ -84,7 +86,9 @@ def time_execution() -> AbstractContextManager[_Timer[Literal[_TimerState.STOPPE
     return _Timer[Literal[_TimerState.STARTED]]()()
 
 
-def time_execution_async() -> AbstractAsyncContextManager[_AsyncTimer[Literal[_TimerState.STOPPED]]]:
+def time_execution_async() -> (
+    AbstractAsyncContextManager[_AsyncTimer[Literal[_TimerState.STOPPED]]]
+):
     """
     Times the execution of an asynchronous block of code and returns the AsyncTimer instance.
     """

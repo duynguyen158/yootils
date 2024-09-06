@@ -1,9 +1,10 @@
 name: Publish to PyPI
 on:
-  release:
+  workflow_run:
+    workflows: ["Create release"]
     types:
-      - published
-      
+      - completed
+
 jobs:
   publish-package:
     name: Publish package to PyPI

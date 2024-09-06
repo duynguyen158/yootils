@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yootils"
-version = "0.0.2"
+version = "0.1.0"
 description = "Stuff I often need."
 authors = ["Duy Nguyen <hello.duyknguyen@gmail.com>"]
 license = "MIT"

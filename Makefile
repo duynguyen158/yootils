@@ -26,4 +26,4 @@ lint: # Lint the code
 	mypy
 
 test: # Run the tests
-	pytest --cov=yootils
+	pytest --cov=yootils/ tests/

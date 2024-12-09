@@ -1,6 +1,7 @@
 name: Create GitHub release
 on:
   workflow_run:
+    # This workflow is triggered when the "Publish on PR merge" workflow in `on-merge-to-main.yaml` is completed
     workflows: ["Publish on PR merge"]
     types:
       - completed

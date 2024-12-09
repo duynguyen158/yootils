@@ -44,7 +44,7 @@ combine-as-imports = true
 [tool.pyright]
 venvPath = "."
 venv = "./.venv"
-include = ["{{ cookiecutter.project_slug }}", "tests"]
+include = ["yootils", "tests"]
 typeCheckingMode = "strict"
 reportUnknownVariableType = false
 reportUnknownMemberType = false

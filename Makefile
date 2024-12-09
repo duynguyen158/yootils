@@ -20,10 +20,11 @@ install: # Install the project dependencies
 .PHONY: format lint test
 
 format: # Format the code
-	pre-commit run --all-files
+	uvx ruff format
+	uvx ruff check --fix
 
 lint: # Lint the code
-	mypy
+	uvx pyright
 
 test: # Run the tests
 	pytest --cov=yootils/ tests/

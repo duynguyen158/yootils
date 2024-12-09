@@ -8,7 +8,7 @@
 
 # Python
 __pycache__
-!.pre-commit-config.yaml
+!.python-version
 
-# Zed
-pyrightconfig.json
+# direnv
+!.envrc

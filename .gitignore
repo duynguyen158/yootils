@@ -9,6 +9,3 @@
 # Python
 __pycache__
 !.python-version
-
-# direnv
-!.envrc

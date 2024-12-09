@@ -9,6 +9,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required for tagging
     steps:
       - name: Checkout
         uses: actions/checkout@v4

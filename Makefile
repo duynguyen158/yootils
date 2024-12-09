@@ -14,7 +14,7 @@ help: # Show help for each of the Makefile recipes
 .PHONY: install
 
 install: # Install the project dependencies
-	poetry install --no-root
+	uv sync
 
 # DEVELOPMENT
 .PHONY: format lint test

@@ -27,7 +27,7 @@ test: # Run the tests
 	uv run pytest --cov=yootils/ tests/
 
 # RELEASE
-.PHONY: bump-% release show-version
+.PHONY: bump-% show-version
 
 show-version: # Show the current version
 	@eval $(shell uvx bumpver show -n --environ) && echo $$PEP440_VERSION

@@ -27,7 +27,7 @@ lint: # Lint the code
 	uvx pyright
 
 test: # Run the tests
-	pytest --cov=yootils/ tests/
+	uv run pytest --cov=yootils/ tests/
 
 # RELEASE
 .PHONY: release

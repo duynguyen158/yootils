@@ -11,6 +11,10 @@ jobs:
   release:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      # (see: https://docs.pypi.org/trusted-publishers/using-a-publisher/)
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,13 +33,12 @@ jobs:
             exit 1
           fi
           echo "::set-output name=version::$PEP440_VERSION"
-          
+
       - name: Build package
         run: uv build
-        
-      - name: Publish package to PyPI
-        # No need for a PyPI token because this repo and file is already whitelisted on the PyPI end
-        run: uv publish
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
 
       - name: Push tag
         env:

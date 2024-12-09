@@ -21,4 +21,4 @@ and then run `direnv allow`. The next time you enter the directory, the environm
 Refer to the Makefile recipes for a list of supported commands, including formatting and type-checking code.
 
 ## Deployment
-This package is automatically deployed to PyPI when pull request to the `main` branch is merged, via GitHub Actions.
+This package is automatically deployed to PyPI when pull request to the `main` branch is merged and the version number is bumped, via GitHub Actions.

@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  release:
+  publish:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
@@ -37,22 +37,5 @@ jobs:
       - name: Build package
         run: uv build
 
-      - name: Publish package distributions to PyPI
+      - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-
-      - name: Push tag
-        env:
-          VERSION: ${{ steps.check_version.outputs.version }}
-        run: |
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-
-      - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.check_version.outputs.version }}
-        run: |
-          gh release create "$VERSION" \
-              --repo="$GITHUB_REPOSITORY" \
-              --title="${VERSION}" \
-              --generate-notes

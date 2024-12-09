@@ -1,0 +1,44 @@
+name: Create GitHub release
+on:
+  workflow_run:
+    # This workflow is triggered when the "Publish on PR merge" workflow in `on-merge-to-main.yaml` is completed
+    workflows: ["Publish on PR merge"]
+    types:
+      - completed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.5.7"
+
+      - name: Get version
+        id: get_version
+        run: |
+          eval $(uvx bumpver show --environ)
+          echo "::set-output name=version::$PEP440_VERSION"
+
+      - name: Push tag
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          git config --global user.email "57234880+duynguyen158@users.noreply.github.com"
+          git config --global user.name "Duy Nguyen"
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          gh release create "$VERSION" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${VERSION}" \
+              --generate-notes

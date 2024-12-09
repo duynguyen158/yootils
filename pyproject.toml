@@ -23,6 +23,15 @@ dev = [
     "pytest-cov>=5.0.0",
 ]
 
+[tool.bumpver]
+current_version = "0.1.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'version = "{version}"',
+]
+
 [tool.ruff.lint]
 select = [
     "E", # pycodestyle

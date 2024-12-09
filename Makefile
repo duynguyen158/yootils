@@ -30,7 +30,16 @@ test: # Run the tests
 	uv run pytest --cov=yootils/ tests/
 
 # RELEASE
-.PHONY: release
+.PHONY: bump-% release
+
+bump-patch: # Bump the patch version
+	uvx bumpver update --patch
+
+bump-minor: # Bump the minor version
+	uvx bumpver update --minor
+
+bump-major: # Bump the major version
+	uvx bumpver update --major
 
 release: # Release a new version. It'll ask whether you've bumped the version in the pyproject.toml file.
 	@read -p "Have you bumped the version number in pyproject.toml? (y/n) " answer && \

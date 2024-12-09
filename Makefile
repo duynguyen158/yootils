@@ -1,9 +1,6 @@
 # GENERAL
 .PHONY: all help
 
-# VARIABLES
-VERSION = $(shell poetry version -s)
-
 all: help
 	@echo "Please specify a target."
 
@@ -30,7 +27,10 @@ test: # Run the tests
 	uv run pytest --cov=yootils/ tests/
 
 # RELEASE
-.PHONY: bump-% release
+.PHONY: bump-% release show-version
+
+show-version: # Show the current version
+	@eval $(shell uvx bumpver show -n --environ) && echo $$PEP440_VERSION
 
 bump-patch: # Bump the patch version
 	uvx bumpver update --patch
@@ -40,13 +40,3 @@ bump-minor: # Bump the minor version
 
 bump-major: # Bump the major version
 	uvx bumpver update --major
-
-release: # Release a new version. It'll ask whether you've bumped the version in the pyproject.toml file.
-	@read -p "Have you bumped the version number in pyproject.toml? (y/n) " answer && \
-	case $$answer in \
-	 [Yy]* ) echo "Proceeding with release..."; break;; \
-	 [Nn]* ) echo "Please bump the version number first."; exit 1;; \
-	 * ) echo "Please answer yes or no.";; \
-	esac
-	git tag -a $(VERSION) -m "Release $(VERSION)"
-	git push origin $(VERSION)

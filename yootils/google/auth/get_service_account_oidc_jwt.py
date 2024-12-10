@@ -78,7 +78,6 @@ async def get_service_account_oidc_jwt_async(
     Returns:
         tuple[str, datetime]: A tuple containing the JWT and its expiration time.
     """
-    # TODO: Remove type: ignore when https://github.com/googleapis/google-auth-library-python/issues/1567 is resolved
     credentials = AsyncIDTokenCredentials.from_service_account_info(
         credentials_info,
         target_audience=target_audience,

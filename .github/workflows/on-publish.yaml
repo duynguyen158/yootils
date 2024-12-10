@@ -36,12 +36,6 @@ jobs:
         if: steps.version_info.outputs.version_bumped == 'true'
         uses: actions/checkout@v4
 
-      - name: Install uv
-        if: steps.version_info.outputs.version_bumped == 'true'
-        uses: astral-sh/setup-uv@v4
-        with:
-          version: "0.5.7"
-
       - name: Push tag
         if: steps.version_info.outputs.version_bumped == 'true'
         env:

@@ -15,6 +15,7 @@ jobs:
       # IMPORTANT: this permission is mandatory for trusted publishing
       # (see: https://docs.pypi.org/trusted-publishers/using-a-publisher/)
       id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +28,7 @@ jobs:
       - name: Check if version is bumped
         id: check_version
         run: |
+          git fetch --tags
           eval $(uvx bumpver show --environ)
           if git tag -l | grep -q "^$PEP440_VERSION$"; then
             echo "version_bumped=false" >> $GITHUB_OUTPUT

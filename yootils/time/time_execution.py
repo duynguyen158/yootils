@@ -39,7 +39,8 @@ class _Timer(Generic[_S]):
     def __call__(
         self: _Timer[Literal[_TimerState.STARTED]],
     ) -> Iterator[_Timer[Literal[_TimerState.STOPPED]]]:
-        """Times the execution.
+        """
+        Times the execution.
 
         Yields:
             Iterator[_Timer[Literal[_TimerState.STOPPED]]]: The timer instance.
@@ -65,7 +66,8 @@ class _AsyncTimer(Generic[_S]):
     async def __call__(
         self: _AsyncTimer[Literal[_TimerState.STARTED]],
     ) -> AsyncIterator[_AsyncTimer[Literal[_TimerState.STOPPED]]]:
-        """Times the execution.
+        """
+        Times the execution.
 
         Yields:
             AsyncIterator[_AsyncTimer[Literal[_TimerState.STOPPED]]]: The timer instance.

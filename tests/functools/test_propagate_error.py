@@ -66,8 +66,7 @@ async def test_async_success() -> None:
         case Success(value):
             assert value == 2
         # Trivial; we'll never reach this point.
-        # Interestingly, doing this is fine with mypy but `case uncaught_exception:` makes mypy complain "error: Exception must be derived from BaseException," which doesn't happen in the synchronous version.
-        case Exception() as uncaught_exception:
+        case uncaught_exception:
             raise uncaught_exception
 
 

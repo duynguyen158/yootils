@@ -25,7 +25,7 @@ def test_time_execution_reuse() -> None:
 
     # This is discouraged on a typing level but not prevented during runtime
     # If possible, please avoid reusing the timer instance
-    with timer() as timer:  # type: ignore[misc]
+    with timer() as timer:  # pyright: ignore[reportCallIssue]
         time.sleep(2)
 
     assert timer.seconds_elapsed == pytest.approx(2, rel=TOLERANCE)
@@ -50,7 +50,7 @@ async def test_time_execution_async_reuse() -> None:
 
     # This is discouraged on a typing level but not prevented during runtime
     # If possible, please avoid reusing the timer instance
-    async with timer() as timer:  # type: ignore[misc]
+    async with timer() as timer:  # pyright: ignore[reportCallIssue]
         await asyncio.sleep(2)
 
     assert timer.seconds_elapsed == pytest.approx(2, rel=TOLERANCE)

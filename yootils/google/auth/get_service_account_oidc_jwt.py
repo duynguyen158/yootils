@@ -32,15 +32,14 @@ def get_service_account_oidc_jwt(
     Returns:
         tuple[str, datetime]: A tuple containing the JWT and its expiration time.
     """
-    # TODO: Remove type: ignore when https://github.com/googleapis/google-auth-library-python/issues/1567 is resolved
-    credentials = IDTokenCredentials.from_service_account_info(  # type: ignore[no-untyped-call]
+    credentials = IDTokenCredentials.from_service_account_info(
         credentials_info,
         target_audience=target_audience,
         additional_claims=additional_claims,
         quota_project_id=quota_project_id,
         universe_domain=universe_domain,
     )
-    credentials.refresh(Request())  # type: ignore[no-untyped-call]
+    credentials.refresh(Request())
     return str(credentials.token), credentials.expiry
 
 
@@ -66,12 +65,12 @@ async def get_service_account_oidc_jwt_async(
         tuple[str, datetime]: A tuple containing the JWT and its expiration time.
     """
     # TODO: Remove type: ignore when https://github.com/googleapis/google-auth-library-python/issues/1567 is resolved
-    credentials = AsyncIDTokenCredentials.from_service_account_info(  # type: ignore[no-untyped-call]
+    credentials = AsyncIDTokenCredentials.from_service_account_info(
         credentials_info,
         target_audience=target_audience,
         additional_claims=additional_claims,
         quota_project_id=quota_project_id,
         universe_domain=universe_domain,
     )
-    await credentials.refresh(AsyncRequest())  # type: ignore[no-untyped-call]
+    await credentials.refresh(AsyncRequest())
     return str(credentials.token), credentials.expiry

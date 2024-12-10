@@ -14,9 +14,11 @@ jobs:
       actions: read
     steps:
       - name: Download version info
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v7
         with:
-          run-id: ${{ github.event.workflow_run.id }}
+          branch: main
+          workflow_conclusion: success
+          run_id: ${{ github.event.workflow_run.id }}
           name: version-info
           path: .
 

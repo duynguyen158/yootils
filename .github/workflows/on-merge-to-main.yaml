@@ -26,16 +26,36 @@ jobs:
 
       - name: Check if version is bumped
         id: check_version
+        continue-on-error: true
         run: |
           eval $(uvx bumpver show --environ)
           if git tag -l | grep -q "^$PEP440_VERSION$"; then
-            echo "Version $PEP440_VERSION already exists. Exiting."
-            exit 1
+            echo "VERSION_BUMPED=false" >> $GITHUB_OUTPUT
+            echo "Version $PEP440_VERSION already exists. Skipping publish."
+          else
+            echo "VERSION_BUMPED=true" >> $GITHUB_OUTPUT
+            echo "version=$PEP440_VERSION" >> $GITHUB_OUTPUT
           fi
-          echo "::set-output name=version::$PEP440_VERSION"
+
+      - name: Save version status
+        if: always()
+        run: |
+          echo "${{ steps.check_version.outputs.VERSION_BUMPED }}" > version_status.txt
+          echo "${{ steps.check_version.outputs.version }}" > version.txt
+
+      - name: Upload version status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-info
+          path: |
+            version_status.txt
+            version.txt
 
       - name: Build package
+        if: steps.check_version.outputs.VERSION_BUMPED == 'true'
         run: uv build
 
       - name: Publish package to PyPI
+        if: steps.check_version.outputs.VERSION_BUMPED == 'true'
         uses: pypa/gh-action-pypi-publish@release/v1

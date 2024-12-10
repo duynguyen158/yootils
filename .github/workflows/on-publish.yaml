@@ -10,25 +10,36 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required for tagging
+      contents: write
     steps:
+      - name: Download version info
+        uses: actions/download-artifact@v4
+        with:
+          name: version-info
+          path: .
+
+      - name: Load version info
+        id: version_info
+        run: |
+          VERSION_BUMPED=$(cat version_status.txt)
+          VERSION=$(cat version.txt)
+          echo "version_bumped=${VERSION_BUMPED}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
       - name: Checkout
+        if: steps.version_info.outputs.version_bumped == 'true'
         uses: actions/checkout@v4
 
       - name: Install uv
+        if: steps.version_info.outputs.version_bumped == 'true'
         uses: astral-sh/setup-uv@v4
         with:
           version: "0.5.7"
 
-      - name: Get version
-        id: get_version
-        run: |
-          eval $(uvx bumpver show --environ)
-          echo "::set-output name=version::$PEP440_VERSION"
-
       - name: Push tag
+        if: steps.version_info.outputs.version_bumped == 'true'
         env:
-          VERSION: ${{ steps.get_version.outputs.version }}
+          VERSION: ${{ steps.version_info.outputs.version }}
         run: |
           git config --global user.email "57234880+duynguyen158@users.noreply.github.com"
           git config --global user.name "Duy Nguyen"
@@ -36,9 +47,10 @@ jobs:
           git push origin "$VERSION"
 
       - name: Create release
+        if: steps.version_info.outputs.version_bumped == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.get_version.outputs.version }}
+          VERSION: ${{ steps.version_info.outputs.version }}
         run: |
           gh release create "$VERSION" \
               --repo="$GITHUB_REPOSITORY" \

@@ -55,7 +55,8 @@ class propagate_error_async(Generic[_E]):
     def __call__(
         self, func: Callable[_P, Awaitable[_R]]
     ) -> Callable[_P, Awaitable[Success[_R] | _E | Exception]]:
-        """Inner decorator that wraps the async function and returns a Success instance if the function runs successfully, or an exception if it fails.
+        """
+        Inner decorator that wraps the async function and returns a Success instance if the function runs successfully, or an exception if it fails.
 
         Args:
             func (Callable[_P, Awaitable[_R]]): The async function to be wrapped.

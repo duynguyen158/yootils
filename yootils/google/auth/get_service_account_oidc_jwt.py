@@ -29,7 +29,8 @@ def get_service_account_oidc_jwt(
     quota_project_id: str | None = None,
     universe_domain: str | None = None,
 ) -> tuple[str, datetime]:
-    """Generates an OpenID Connect (OIDC) JSON Web Token (JWT) for a Google service account with respect to a target audience.
+    """
+    Generates an OpenID Connect (OIDC) JSON Web Token (JWT) for a Google service account with respect to a target audience.
     This is primarily used for authenticating the service account to a third-party service such as an Cloud Run Service-run API.
 
     (For more information about this function's arguments, see: https://github.com/googleapis/google-auth-library-python/blob/c6d99030b8d972105913006bd052cf762b94a976/google/oauth2/service_account.py#L556.)
@@ -63,7 +64,8 @@ async def get_service_account_oidc_jwt_async(
     quota_project_id: str | None = None,
     universe_domain: str | None = None,
 ) -> tuple[str, datetime]:
-    """Generates an OpenID Connect (OIDC) JSON Web Token (JWT) for a Google service account with respect to a target audience.
+    """
+    Generates an OpenID Connect (OIDC) JSON Web Token (JWT) for a Google service account with respect to a target audience.
     This is primarily used for authenticating the service account to a third-party service such as an Cloud Run Service-run API.
 
     Args:

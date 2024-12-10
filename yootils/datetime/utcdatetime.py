@@ -10,7 +10,8 @@ def utcdatetime(
     second: int = 0,
     microsecond: int = 0,
 ) -> datetime:
-    """Generate a datetime object in UTC timezone.
+    """
+    Generates a datetime object in UTC timezone.
 
     Args:
         year (int): Year.

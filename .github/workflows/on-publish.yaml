@@ -18,8 +18,8 @@ jobs:
       - name: Download version info
         uses: dawidd6/action-download-artifact@v7
         with:
-          branch: main
           workflow_conclusion: success
+          # Only one of pr, commit, branch, run_id can be specified
           run_id: ${{ github.event.workflow_run.id }}
           name: version-info
           path: .

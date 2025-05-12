@@ -37,26 +37,50 @@ class _BaseSchema(BaseModel):
 
 
 class String(_BaseSchema):
+    """
+    Pydantic model representing a JSON Schema string.
+    """
+
     type: Annotated[Literal[Type.STRING], Field(default=Type.STRING)]
 
 
 class Enum(String):
+    """
+    Pydantic model representing a JSON Schema enum, based on the string type.
+    """
+
     enum: Annotated[set[str], Field(min_length=1)]
 
 
 class Number(_BaseSchema):
+    """
+    Pydantic model representing a JSON Schema number.
+    """
+
     type: Annotated[Literal[Type.NUMBER], Field(default=Type.NUMBER)]
 
 
 class Integer(_BaseSchema):
+    """
+    Pydantic model representing a JSON Schema integer.
+    """
+
     type: Annotated[Literal[Type.INTEGER], Field(default=Type.INTEGER)]
 
 
 class Boolean(_BaseSchema):
+    """
+    Pydantic model representing a JSON Schema boolean.
+    """
+
     type: Annotated[Literal[Type.BOOLEAN], Field(default=Type.BOOLEAN)]
 
 
 class Object(_BaseSchema):
+    """
+    Pydantic model representing a JSON Schema object.
+    """
+
     type: Annotated[Literal[Type.OBJECT], Field(default=Type.OBJECT)]
     properties: dict[
         str,
@@ -74,6 +98,10 @@ class Object(_BaseSchema):
 
 
 class Array(_BaseSchema):
+    """
+    Pydantic model representing a JSON Schema array.
+    """
+
     type: Annotated[Literal[Type.ARRAY], Field(default=Type.ARRAY)]
     items: String | Number | Integer | Boolean | Enum | Object | Array
 
@@ -82,6 +110,18 @@ class Array(_BaseSchema):
 def convert_json_schema_to_pydantic_model(
     object: Object, *, target_python_version: PythonVersion
 ) -> Generator[type[BaseModel]]:
+    """
+    Converts a JSON schema object into its Pydantic representation. This is useful while building language model-based applications which accept an arbitrary JSON representing the user's desired output structure.
+
+    See corresponding tests in the `tests` directory for example usage.
+
+    Args:
+        object (Object): The JSON Schema object to convert. This should be an instance of the custom `Object` Pydantic model defined in this module, typically constructed to describe the desired schema for your data.
+        target_python_version (PythonVersion): The Python version to target for the generated Pydantic model source code. Use values from `datamodel_code_generator.PythonVersion` (such as `PythonVersion.PY_311`) according to your environment.
+
+    Returns:
+        Generator[type[BaseModel]]: A context manager with the created Pydantic representation.
+    """
     json_schema = object.model_dump_json(by_alias=True)
 
     with TemporaryDirectory() as temp_dir:
@@ -124,6 +164,18 @@ def convert_json_schema_to_pydantic_model(
 async def convert_json_schema_to_pydantic_model_async(
     object: Object, *, target_python_version: PythonVersion
 ) -> AsyncGenerator[type[BaseModel]]:
+    """
+    Converts a JSON schema object into its Pydantic representation, async-style. This is useful while building language model-based applications which accept an arbitrary JSON representing the user's desired output structure.
+
+    See corresponding tests in the `tests` directory for example usage.
+
+    Args:
+        object (Object): The JSON Schema object to convert. This should be an instance of the custom `Object` Pydantic model defined in this module, typically constructed to describe the desired schema for your data.
+        target_python_version (PythonVersion): The Python version to target for the generated Pydantic model source code. Use values from `datamodel_code_generator.PythonVersion` (such as `PythonVersion.PY_311`) according to your environment.
+
+    Returns:
+        AsyncGenerator[type[BaseModel]]: An asynchronous context manager with the created Pydantic representation.
+    """
     json_schema = object.model_dump_json(by_alias=True)
 
     async with AsyncTemporaryDirectory() as temp_dir:

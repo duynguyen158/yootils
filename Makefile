@@ -11,7 +11,7 @@ help: # Show help for each of the Makefile recipes
 .PHONY: install
 
 install: # Install the project dependencies
-	uv sync
+	uv sync --all-groups --all-extras
 
 # DEVELOPMENT
 .PHONY: format lint test

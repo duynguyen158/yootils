@@ -9,9 +9,12 @@ license = {file = "LICENSE"}
 readme = "README.md"
 urls = { homepage = "https://github.com/duynguyen158/yootils", repository = "https://github.com/duynguyen158/yootils" }
 requires-python = ">=3.11"
-dependencies = [
-    "google-auth>=2.34.0",
+dependencies = []
+
+[project.optional-dependencies]
+google = [
     "aiohttp>=3.10.5",
+    "google-auth>=2.34.0",
     "urllib3>=2.2.2",
     "requests>=2.32.3"
 ]

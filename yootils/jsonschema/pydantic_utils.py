@@ -101,11 +101,11 @@ def convert_json_schema_to_pydantic_model(
 
         # Import the generated model
         spec = spec_from_file_location(module_name, model_file)
-        if spec is None:
+        if spec is None:  # pragma: no cover
             raise ValueError(
                 "Spec for temporary module containing generated Pydantic model should not be None. Re-check how this function converts a JSON Schema to a Pydantic model."
             )
-        if spec.loader is None:
+        if spec.loader is None:  # pragma: no cover
             raise ValueError(
                 "Spec loader for temporary module containing generated Pydantic model should not be None. Re-check how this function converts a JSON Schema to a Pydantic model."
             )
@@ -143,11 +143,11 @@ async def convert_json_schema_to_pydantic_model_async(
 
         # Import the generated model
         spec = spec_from_file_location(module_name, model_file)
-        if spec is None:
+        if spec is None:  # pragma: no cover
             raise ValueError(
                 "Spec for temporary module containing generated Pydantic model should not be None. Re-check how this function converts a JSON Schema to a Pydantic model."
             )
-        if spec.loader is None:
+        if spec.loader is None:  # pragma: no cover
             raise ValueError(
                 "Spec loader for temporary module containing generated Pydantic model should not be None. Re-check how this function converts a JSON Schema to a Pydantic model."
             )

@@ -16,7 +16,7 @@ jobs:
       # Cannot use `@actions/download-artifact` because it does not support downloading artifacts from a different workflow run
       # (see: https://github.com/dawidd6/action-download-artifact).
       - name: Download version info
-        uses: dawidd6/action-download-artifact@v7
+        uses: dawidd6/action-download-artifact@v9
         with:
           workflow_conclusion: success
           # Only one of pr, commit, branch, run_id can be specified

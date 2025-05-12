@@ -18,6 +18,12 @@ google = [
     "urllib3>=2.2.2",
     "requests>=2.32.3"
 ]
+jsonschema = [
+    "anyio>=4.9.0",
+    "asyncer>=0.0.8",
+    "datamodel-code-generator>=0.30.1",
+    "pydantic>=2.11.4",
+]
 
 [dependency-groups]
 dev = [

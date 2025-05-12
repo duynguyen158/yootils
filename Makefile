@@ -11,7 +11,7 @@ help: # Show help for each of the Makefile recipes
 .PHONY: install
 
 install: # Install the project dependencies
-	uv sync
+	uv sync --all-groups --all-extras
 
 # DEVELOPMENT
 .PHONY: format lint test
@@ -24,7 +24,8 @@ lint: # Lint the code
 	uvx pyright
 
 test: # Run the tests
-	uv run pytest --cov=yootils/ tests/
+	@PYTHON_MAJOR_MINOR_VERSION=$(shell uv run python -V | grep -oE "[0-9]+\.[0-9]+") \
+	    uv run pytest --cov=yootils/ tests/
 
 # RELEASE
 .PHONY: bump-% show-version

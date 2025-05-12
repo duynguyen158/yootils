@@ -15,9 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v6
         with:
-          version: "0.5.7"
+          version: "0.7.3"
       - name: Remove .python-version
         run: rm -f .python-version
       - name: Set up Python ${{ matrix.python-version }}
@@ -25,10 +25,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: uv sync --python-preference only-system
+        run: uv sync --all-groups --all-extras --python-preference only-system
       - name: Check formatting
         run: uvx ruff check
       - name: Check type
         run: uvx pyright
       - name: Run tests
-        run: uv run pytest --cov=yootils/ tests/
+        run: PYTHON_MAJOR_MINOR_VERSION=$(uv run python -V | grep -oE "[0-9]+\.[0-9]+") uv run pytest --cov=yootils/ tests/

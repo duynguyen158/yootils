@@ -1,6 +1,6 @@
 [project]
 name = "yootils"
-version = "0.1.2"
+version = "0.2.0"
 description = "Stuff I often need."
 authors = [
     { name = "Duy Nguyen", email = "hello.duyknguyen@gmail.com" }
@@ -9,11 +9,20 @@ license = {file = "LICENSE"}
 readme = "README.md"
 urls = { homepage = "https://github.com/duynguyen158/yootils", repository = "https://github.com/duynguyen158/yootils" }
 requires-python = ">=3.11"
-dependencies = [
-    "google-auth>=2.34.0",
+dependencies = []
+
+[project.optional-dependencies]
+google = [
     "aiohttp>=3.10.5",
+    "google-auth>=2.34.0",
     "urllib3>=2.2.2",
     "requests>=2.32.3"
+]
+jsonschema = [
+    "anyio>=4.9.0",
+    "asyncer>=0.0.8",
+    "datamodel-code-generator>=0.30.1",
+    "pydantic>=2.11.4",
 ]
 
 [dependency-groups]
@@ -24,7 +33,7 @@ dev = [
 ]
 
 [tool.bumpver]
-current_version = "0.1.2"
+current_version = "0.2.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 
 [tool.bumpver.file_patterns]

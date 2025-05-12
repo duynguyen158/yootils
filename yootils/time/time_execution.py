@@ -88,9 +88,9 @@ def time_execution() -> AbstractContextManager[_Timer[Literal[_TimerState.STOPPE
     return _Timer[Literal[_TimerState.STARTED]]()()
 
 
-def time_execution_async() -> (
-    AbstractAsyncContextManager[_AsyncTimer[Literal[_TimerState.STOPPED]]]
-):
+def time_execution_async() -> AbstractAsyncContextManager[
+    _AsyncTimer[Literal[_TimerState.STOPPED]]
+]:
     """
     Times the execution of an asynchronous block of code and returns the AsyncTimer instance.
     """

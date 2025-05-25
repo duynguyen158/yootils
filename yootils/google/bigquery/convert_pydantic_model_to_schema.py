@@ -118,14 +118,14 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
             if precision <= 38 and scale <= 9:
                 field_schema = _SchemaField(
                     field_type=StandardSqlTypeNames.NUMERIC,
-                    scale=scale,
                     precision=precision,
+                    scale=scale,
                 )
             elif precision <= 76 and scale <= 38:
                 field_schema = _SchemaField(
                     field_type=StandardSqlTypeNames.BIGNUMERIC,
-                    scale=scale,
                     precision=precision,
+                    scale=scale,
                 )
             else:
                 raise ValueError(

@@ -62,7 +62,9 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
         # Use __mro__ so that if the type is a subclass of Iterable, e.g., Generator, it's still counted. Except for Mapping, which should be treated as a struct type instead of REPEATED
         if (
             origin is not None
-            and set(origin.__mro__).intersection({list, set, Iterable})
+            and set(origin.__mro__).intersection(
+                {tuple, list, set, frozenset, Iterable}
+            )
             and not issubclass(origin, Mapping)
         ):
             mode = Mode.REPEATED
@@ -103,7 +105,17 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
         origin = get_origin(field_type)
 
         # Infer BigQuery field type from field_type and origin
-        if issubclass(field_type, bool):
+        if origin is not None and issubclass(origin, dict | Mapping):
+            field_schema = _SchemaField(field_type=StandardSqlTypeNames.JSON)
+
+        elif issubclass(field_type, BaseModel):
+            # Recursively convert the inner model to schema for the struct field
+            field_schema = _SchemaField(
+                field_type=StandardSqlTypeNames.STRUCT,
+                fields=convert_pydantic_model_to_schema(field_type),
+            )
+
+        elif issubclass(field_type, bool):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.BOOL)
 
         elif issubclass(field_type, int):
@@ -152,16 +164,6 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
 
         elif issubclass(field_type, time):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.TIME)
-
-        elif origin is not None and issubclass(origin, dict | Mapping):
-            field_schema = _SchemaField(field_type=StandardSqlTypeNames.JSON)
-
-        elif issubclass(field_type, BaseModel):
-            # Recursively convert the inner model to schema for the struct field
-            field_schema = _SchemaField(
-                field_type=StandardSqlTypeNames.STRUCT,
-                fields=convert_pydantic_model_to_schema(field_type),
-            )
 
         else:
             raise NotImplementedError(f"Unsupported field type: {field_type}")

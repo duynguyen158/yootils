@@ -1,5 +1,6 @@
 import typing
-from collections.abc import Generator, Iterable, Iterator, Mapping, Sequence
+from collections import OrderedDict
+from collections.abc import Generator, Iterable, Iterator, Mapping, Sequence, Set
 from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
@@ -201,31 +202,95 @@ _Model = partial(
         ),
         (
             _Model(
-                fieldDict=typing.Annotated[
-                    dict[str, typing.Any], Field(description="Dictionary field")
+                fieldDict1=typing.Annotated[
+                    dict[str, typing.Any], Field(description="Dictionary field 1")
                 ]
             ),
             [
                 SchemaField(
-                    "fieldDict",
+                    "fieldDict1",
                     StandardSqlTypeNames.JSON,
                     mode=Mode.REQUIRED,
-                    description="Dictionary field",
+                    description="Dictionary field 1",
                 )
             ],
         ),
         (
             _Model(
-                fieldMapping=typing.Annotated[
-                    Mapping[str, typing.Any], Field(description="Mapping field")
+                fieldDict2=typing.Annotated[
+                    typing.Dict[str, typing.Any],  # noqa: UP006
+                    Field(description="Dictionary field 2"),
                 ]
             ),
             [
                 SchemaField(
-                    "fieldMapping",
+                    "fieldDict2",
                     StandardSqlTypeNames.JSON,
                     mode=Mode.REQUIRED,
-                    description="Mapping field",
+                    description="Dictionary field 2",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldOrderedDict1=typing.Annotated[
+                    OrderedDict[str, typing.Any],
+                    Field(description="Ordered dictionary field 1"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldOrderedDict1",
+                    StandardSqlTypeNames.JSON,
+                    mode=Mode.REQUIRED,
+                    description="Ordered dictionary field 1",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldOrderedDict2=typing.Annotated[
+                    typing.OrderedDict[str, typing.Any],
+                    Field(description="Ordered dictionary field 2"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldOrderedDict2",
+                    StandardSqlTypeNames.JSON,
+                    mode=Mode.REQUIRED,
+                    description="Ordered dictionary field 2",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldMapping1=typing.Annotated[
+                    Mapping[str, typing.Any], Field(description="Mapping field 1")
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldMapping1",
+                    StandardSqlTypeNames.JSON,
+                    mode=Mode.REQUIRED,
+                    description="Mapping field 1",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldMapping2=typing.Annotated[
+                    typing.Mapping[str, typing.Any],
+                    Field(description="Mapping field 2"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldMapping2",
+                    StandardSqlTypeNames.JSON,
+                    mode=Mode.REQUIRED,
+                    description="Mapping field 2",
                 )
             ],
         ),
@@ -310,6 +375,36 @@ _Model = partial(
         # Repeated fields
         (
             _Model(
+                fieldTuple1=typing.Annotated[
+                    tuple[str, ...], Field(description="Tuple field 1")
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldTuple1",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REPEATED,
+                    description="Tuple field 1",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldTuple2=typing.Annotated[
+                    typing.Tuple[str, ...], Field(description="Tuple field 2")  # noqa: UP006
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldTuple2",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REPEATED,
+                    description="Tuple field 2",
+                )
+            ],
+        ),
+        (
+            _Model(
                 fieldList1=typing.Annotated[
                     list[str], Field(description="List field 1")
                 ]
@@ -363,6 +458,36 @@ _Model = partial(
                     StandardSqlTypeNames.INT64,
                     mode=Mode.REPEATED,
                     description="Set field 2",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldFrozenSet1=typing.Annotated[
+                    frozenset[str], Field(description="Frozen set field 1")
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldFrozenSet1",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REPEATED,
+                    description="Frozen set field 1",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldFrozenSet2=typing.Annotated[
+                    typing.FrozenSet[str], Field(description="Frozen set field 2")  # noqa: UP006
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldFrozenSet2",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REPEATED,
+                    description="Frozen set field 2",
                 )
             ],
         ),
@@ -504,16 +629,31 @@ _Model = partial(
         ),
         (
             _Model(
-                fieldTuple1=typing.Annotated[
-                    tuple[str, ...], Field(description="Tuple field 1")
+                fieldAbstractSet1=typing.Annotated[
+                    typing.AbstractSet[int], Field(description="Abstract set field 1")
                 ]
             ),
             [
                 SchemaField(
-                    "fieldTuple1",
-                    StandardSqlTypeNames.STRING,
+                    "fieldAbstractSet1",
+                    StandardSqlTypeNames.INT64,
                     mode=Mode.REPEATED,
-                    description="Tuple field 1",
+                    description="Abstract set field 1",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldAbstractSet2=typing.Annotated[
+                    Set[int], Field(description="Abstract set field 2")
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldAbstractSet2",
+                    StandardSqlTypeNames.INT64,
+                    mode=Mode.REPEATED,
+                    description="Abstract set field 2",
                 )
             ],
         ),

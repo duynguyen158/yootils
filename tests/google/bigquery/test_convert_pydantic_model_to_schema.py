@@ -100,7 +100,51 @@ def test_convert_pydantic_model_to_schema_failed(
 @pytest.mark.parametrize(
     "model,expected",
     [
-        # Standard fields
+        # Without annotation
+        (
+            _Model(fieldBool=(bool, Field(description="Boolean field"))),
+            [
+                SchemaField(
+                    "fieldBool",
+                    StandardSqlTypeNames.BOOL,
+                    mode=Mode.REQUIRED,
+                    description="Boolean field",
+                )
+            ],
+        ),
+        # Without description
+        (
+            _Model(fieldBool=bool),
+            [
+                SchemaField(
+                    "fieldBool",
+                    StandardSqlTypeNames.BOOL,
+                    mode=Mode.REQUIRED,
+                )
+            ],
+        ),
+        # With annotation
+        # Multiple fields
+        (
+            _Model(
+                fieldBool=bool,
+                fieldInt=typing.Annotated[int, Field(description="Integer field")],
+            ),
+            [
+                SchemaField(
+                    "fieldBool",
+                    StandardSqlTypeNames.BOOL,
+                    mode=Mode.REQUIRED,
+                ),
+                SchemaField(
+                    "fieldInt",
+                    StandardSqlTypeNames.INT64,
+                    mode=Mode.REQUIRED,
+                    description="Integer field",
+                ),
+            ],
+        ),
+        # Single type, standard fields
         (
             _Model(
                 fieldBool=typing.Annotated[bool, Field(description="Boolean field")]
@@ -225,6 +269,21 @@ def test_convert_pydantic_model_to_schema_failed(
                     mode=Mode.REQUIRED,
                     description="String field with limit",
                     max_length=100,
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldStringEnum=typing.Annotated[
+                    Mode, Field(description="String enum field")
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldStringEnum",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REQUIRED,
+                    description="String enum field",
                 )
             ],
         ),

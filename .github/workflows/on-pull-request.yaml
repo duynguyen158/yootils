@@ -31,4 +31,4 @@ jobs:
       - name: Check type
         run: uvx pyright
       - name: Run tests
-        run: PYTHON_MAJOR_MINOR_VERSION=$(uv run python -V | grep -oE "[0-9]+\.[0-9]+") uv run pytest --cov=yootils/ tests/
+        run: PYTHON_MAJOR_MINOR_VERSION=$(uv run python -V | grep -oE "[0-9]+\.[0-9]+") uv run pytest --cov=yootils/ --cov-report term-missing tests/

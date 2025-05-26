@@ -1,6 +1,6 @@
 [project]
 name = "yootils"
-version = "0.2.1"
+version = "0.2.2"
 description = "Stuff I often need."
 authors = [
     { name = "Duy Nguyen", email = "hello.duyknguyen@gmail.com" }
@@ -14,10 +14,13 @@ dependencies = []
 [project.optional-dependencies]
 google = [
     "aiohttp>=3.10.5",
+    "annotated-types>=0.7.0",
     "asyncer>=0.0.8",
     "google-api-python-client>=2.169.0",
     "google-auth>=2.34.0",
+    "google-cloud-bigquery>=3.33.0",
     "urllib3>=2.2.2",
+    "pydantic>=2.11.4",
     "requests>=2.32.3"
 ]
 jsonschema = [
@@ -36,7 +39,7 @@ dev = [
 ]
 
 [tool.bumpver]
-current_version = "0.2.1"
+current_version = "0.2.2"
 version_pattern = "MAJOR.MINOR.PATCH"
 
 [tool.bumpver.file_patterns]

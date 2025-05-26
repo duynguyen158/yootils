@@ -14,6 +14,8 @@ to install utilities without any extra external dependencies. To install utiliti
 pip install 'yootils[google]'
 ```
 
+See all available extras in `pyproject.toml`.
+
 ## Development
 This project uses [uv](https://docs.astral.sh/uv/) to manage Python dependencies.
 

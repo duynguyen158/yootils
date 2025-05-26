@@ -20,6 +20,84 @@ _Model = partial(
 
 
 @pytest.mark.parametrize(
+    "model,exception",
+    [
+        (
+            _Model(
+                fieldUnion1=typing.Annotated[
+                    int | str | None, Field(description="Union field 1")
+                ]
+            ),
+            ValueError(
+                "Pydantic model field type cannot be a union of more than one non-NoneType type; got int | str for field fieldUnion1"
+            ),
+        ),
+        (
+            _Model(
+                fieldUnion2=typing.Annotated[
+                    typing.Union[int, str, None], Field(description="Union field 2")  # noqa: UP007
+                ]
+            ),
+            ValueError(
+                r"Pydantic model field type cannot be a union of more than one non-NoneType type; got typing.Union\[int, str, NoneType\] for field fieldUnion2"
+            ),
+        ),
+        (
+            _Model(
+                fieldList1=typing.Annotated[
+                    list, Field(description="List field 1")  # pyright: ignore[reportMissingTypeArgument]
+                ]
+            ),
+            NotImplementedError("Unsupported field type: <class 'list'>"),
+        ),
+        (
+            _Model(
+                fieldList2=typing.Annotated[
+                    list[int | str], Field(description="List field 2")
+                ]
+            ),
+            ValueError(
+                "Pydantic model field type cannot contain a union of more than one non-NoneType type; got int | str for field fieldList2"
+            ),
+        ),
+        (
+            _Model(
+                fieldDecimal1=typing.Annotated[
+                    Decimal, Field(description="Decimal field 1", max_digits=78)
+                ]
+            ),
+            ValueError(
+                "Precision and scale values are out of range. Maximum precision possible for Decimal is 76 and maximum scale is 38. Got precision=78 and scale=0"
+            ),
+        ),
+        (
+            _Model(
+                fieldDecimal2=typing.Annotated[
+                    Decimal, Field(description="Decimal field 2", decimal_places=39)
+                ]
+            ),
+            ValueError(
+                "Precision and scale values are out of range. Maximum precision possible for Decimal is 76 and maximum scale is 38. Got precision=0 and scale=39"
+            ),
+        ),
+        (
+            _Model(
+                fieldUnsupported=typing.Annotated[
+                    Exception, Field(description="Unsupported field")
+                ]
+            ),
+            NotImplementedError("Unsupported field type: <class 'Exception'>"),
+        ),
+    ],
+)
+def test_convert_pydantic_model_to_schema_failed(
+    model: type[BaseModel], exception: Exception
+) -> None:
+    with pytest.raises(type(exception), match=str(exception)):
+        convert_pydantic_model_to_schema(model)
+
+
+@pytest.mark.parametrize(
     "model,expected",
     [
         # Standard fields

@@ -54,7 +54,7 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
                     field_type = main_type
                 case _:
                     raise ValueError(
-                        f"Pydantic model field type cannot be a union of more than one non-NoneType type; got {union_type_args} for field {field_name}"
+                        f"Pydantic model field type cannot be a union of more than one non-NoneType type; got {field_type} for field {field_name}"
                     )
 
         origin = get_origin(field_type)
@@ -70,11 +70,8 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
             mode = Mode.REPEATED
             # Use list here instead of set because Generator[int, None, int] is not the same as Generator[int]
             iterable_type_args = list(get_args(field_type))
-            if len(iterable_type_args) == 0:
-                raise ValueError(
-                    f"If a Pydantic model field is of type list, set or Iterable, it must have at least one type argument; got {iterable_type_args} for field {field_name}"
-                )
             # Reassign field_type to be, e.g., X from list[X] after setting mode to REPEATED
+            # iterable_type_args[0] will always exist, since if the type annotation is list instead of list[X], origin would be none, this code block would be skipped, and we'll go straight to  NotImplementedError: Unsupported field type: <class 'list'>. Even better, this usually would be caught by any half-decent IDE
             field_type = iterable_type_args[0]
             # Check if inside is a Union type with None. If so, strip None from it, same as above
             if get_origin(field_type) in {UnionType, Union}:
@@ -84,7 +81,7 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
                         field_type = main_type
                     case _:
                         raise ValueError(
-                            f"Pydantic model field type cannot be a union of more than one non-NoneType type; got {union_type_args} for field {field_name}"
+                            f"Pydantic model field type cannot contain a union of more than one non-NoneType type; got {field_type} for field {field_name}"
                         )
 
         _SchemaField = partial(

@@ -25,7 +25,7 @@ lint: # Lint the code
 
 test: # Run the tests
 	@PYTHON_MAJOR_MINOR_VERSION=$(shell uv run python -V | grep -oE "[0-9]+\.[0-9]+") \
-	    uv run pytest --cov=yootils/ tests/
+	    uv run pytest --cov=yootils/ --cov-report term-missing tests/
 
 # RELEASE
 .PHONY: bump-% show-version

@@ -37,9 +37,11 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
         field_type = field.annotation
         mode: Mode = Mode.REQUIRED
 
-        if field_type is None:
+        if (
+            field_type is None
+        ):  # pragma: no cover # Remove pragma: no cover once seeing this error in the wild
             raise NotImplementedError(
-                f"Pydantic model field type of None is not supported. Got None for field {field_name}"
+                f"Pydantic model field type of None is not supported. Got None for field {field_name}. Typically this should never be reached; if you're the developer of this library, please add a test case!"
             )
 
         # Try to strip None from union type and set mode to NULLABLE if None is indeed present

@@ -542,6 +542,21 @@ def test_convert_pydantic_model_to_schema_failed(
         ),
         (
             _Model(
+                fieldTuple3=typing.Annotated[
+                    tuple[str | None, ...], Field(description="Tuple field 3")
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldTuple3",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REPEATED,
+                    description="Tuple field 3",
+                )
+            ],
+        ),
+        (
+            _Model(
                 fieldList1=typing.Annotated[
                     list[str], Field(description="List field 1")
                 ]

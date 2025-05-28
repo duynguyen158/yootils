@@ -48,7 +48,7 @@ _Model = partial(
                     list, Field(description="List field 1")  # pyright: ignore[reportMissingTypeArgument]
                 ]
             ),
-            NotImplementedError("Unsupported field type: <class 'list'>"),
+            NotImplementedError("Unsupported field type"),
         ),
         (
             _Model(

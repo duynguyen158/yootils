@@ -165,7 +165,7 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
                 )
             else:
                 raise ValueError(
-                    f"Precision and scale values are out of range. Maximum precision possible for Decimal is 76 and maximum scale is 38. Got precision={precision} and scale={scale}"
+                    f"Precision and scale values are out of range. Maximum precision possible for Decimal is 76 and maximum scale is 38. Got precision={precision} and scale={scale} for field {field_name}"
                 )
 
         elif _class_is_subclass(field_type, str):
@@ -190,7 +190,9 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.TIME)
 
         else:
-            raise NotImplementedError(f"Unsupported field type: {field_type}")
+            raise NotImplementedError(
+                f"Unsupported field type; got {field_type} for {field_name}"
+            )
 
         schema.append(field_schema)
 

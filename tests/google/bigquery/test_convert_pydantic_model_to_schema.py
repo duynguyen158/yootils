@@ -303,33 +303,17 @@ def test_convert_pydantic_model_to_schema_failed(
         ),
         (
             _Model(
-                fieldStringLiteral1=typing.Annotated[
+                fieldStringLiteral=typing.Annotated[
                     typing.Literal["a", "b", "c"],
-                    Field(description="String literal field 1"),
+                    Field(description="String literal field"),
                 ]
             ),
             [
                 SchemaField(
-                    "fieldStringLiteral1",
+                    "fieldStringLiteral",
                     StandardSqlTypeNames.STRING,
                     mode=Mode.REQUIRED,
-                    description="String literal field 1",
-                )
-            ],
-        ),
-        (
-            _Model(
-                fieldStringLiteral2=typing.Annotated[
-                    typing.Literal["a", "b", "c", None],
-                    Field(description="String literal field 2"),
-                ]
-            ),
-            [
-                SchemaField(
-                    "fieldStringLiteral2",
-                    StandardSqlTypeNames.STRING,
-                    mode=Mode.NULLABLE,
-                    description="String literal field 2",
+                    description="String literal field",
                 )
             ],
         ),
@@ -555,6 +539,22 @@ def test_convert_pydantic_model_to_schema_failed(
                 )
             ],
         ),
+        (
+            _Model(
+                fieldOptional4=typing.Annotated[
+                    typing.Literal[1, 2, 3, None],
+                    Field(description="Optional field 4"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldOptional4",
+                    StandardSqlTypeNames.INT64,
+                    mode=Mode.NULLABLE,
+                    description="Optional field 4",
+                )
+            ],
+        ),
         # Repeated fields
         (
             _Model(
@@ -628,6 +628,22 @@ def test_convert_pydantic_model_to_schema_failed(
                     StandardSqlTypeNames.INT64,
                     mode=Mode.REPEATED,
                     description="List field 2",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldList3=typing.Annotated[
+                    list[typing.Literal["hello", "world"]],
+                    Field(description="List field 3"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldList3",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REPEATED,
+                    description="List field 3",
                 )
             ],
         ),

@@ -29,7 +29,7 @@ _Model = partial(
                 ]
             ),
             ValueError(
-                "Pydantic model field type cannot be a union of more than one non-NoneType type; got int | str for field fieldUnion1"
+                "Pydantic model field type cannot be a union of more than one non-NoneType type"
             ),
         ),
         (
@@ -39,7 +39,7 @@ _Model = partial(
                 ]
             ),
             ValueError(
-                r"Pydantic model field type cannot be a union of more than one non-NoneType type; got typing.Union\[int, str, NoneType\] for field fieldUnion2"
+                r"Pydantic model field type cannot be a union of more than one non-NoneType type"
             ),
         ),
         (
@@ -48,7 +48,7 @@ _Model = partial(
                     list, Field(description="List field 1")  # pyright: ignore[reportMissingTypeArgument]
                 ]
             ),
-            NotImplementedError("Unsupported field type: <class 'list'>"),
+            NotImplementedError("Unsupported field type"),
         ),
         (
             _Model(
@@ -57,7 +57,18 @@ _Model = partial(
                 ]
             ),
             ValueError(
-                "Pydantic model field type cannot contain a union of more than one non-NoneType type; got int | str for field fieldList2"
+                "Pydantic model field type cannot contain a union of more than one non-NoneType type"
+            ),
+        ),
+        (
+            _Model(
+                fieldStringLiteral=typing.Annotated[
+                    typing.Literal["a", 3],
+                    Field(description="String literal field"),
+                ]
+            ),
+            ValueError(
+                "Pydantic model field literal cannot contain values corresponding to more than one non-NoneType type"
             ),
         ),
         (
@@ -66,9 +77,7 @@ _Model = partial(
                     Decimal, Field(description="Decimal field 1", max_digits=78)
                 ]
             ),
-            ValueError(
-                "Precision and scale values are out of range. Maximum precision possible for Decimal is 76 and maximum scale is 38. Got precision=78 and scale=0"
-            ),
+            ValueError("Precision and scale values are out of range"),
         ),
         (
             _Model(
@@ -76,9 +85,7 @@ _Model = partial(
                     Decimal, Field(description="Decimal field 2", decimal_places=39)
                 ]
             ),
-            ValueError(
-                "Precision and scale values are out of range. Maximum precision possible for Decimal is 76 and maximum scale is 38. Got precision=0 and scale=39"
-            ),
+            ValueError("Precision and scale values are out of range"),
         ),
         (
             _Model(
@@ -86,7 +93,7 @@ _Model = partial(
                     Exception, Field(description="Unsupported field")
                 ]
             ),
-            NotImplementedError("Unsupported field type: <class 'Exception'>"),
+            NotImplementedError("Unsupported field type"),
         ),
     ],
 )
@@ -284,6 +291,22 @@ def test_convert_pydantic_model_to_schema_failed(
                     StandardSqlTypeNames.STRING,
                     mode=Mode.REQUIRED,
                     description="String enum field",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldStringLiteral=typing.Annotated[
+                    typing.Literal["a", "b", "c"],
+                    Field(description="String literal field"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldStringLiteral",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REQUIRED,
+                    description="String literal field",
                 )
             ],
         ),
@@ -509,6 +532,22 @@ def test_convert_pydantic_model_to_schema_failed(
                 )
             ],
         ),
+        (
+            _Model(
+                fieldOptional4=typing.Annotated[
+                    typing.Literal[1, 2, 3, None],
+                    Field(description="Optional field 4"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldOptional4",
+                    StandardSqlTypeNames.INT64,
+                    mode=Mode.NULLABLE,
+                    description="Optional field 4",
+                )
+            ],
+        ),
         # Repeated fields
         (
             _Model(
@@ -582,6 +621,22 @@ def test_convert_pydantic_model_to_schema_failed(
                     StandardSqlTypeNames.INT64,
                     mode=Mode.REPEATED,
                     description="List field 2",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldList3=typing.Annotated[
+                    list[typing.Literal["hello", "world"]],
+                    Field(description="List field 3"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldList3",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REPEATED,
+                    description="List field 3",
                 )
             ],
         ),

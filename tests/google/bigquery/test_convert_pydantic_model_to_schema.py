@@ -1,3 +1,4 @@
+import re
 import typing
 from collections import OrderedDict
 from collections.abc import Generator, Iterable, Iterator, Mapping, Sequence, Set
@@ -58,6 +59,19 @@ _Model = partial(
             ),
             ValueError(
                 "Pydantic model field type cannot contain a union of more than one non-NoneType type; got int | str for field fieldList2"
+            ),
+        ),
+        (
+            _Model(
+                fieldStringLiteral=typing.Annotated[
+                    typing.Literal["a", 3],
+                    Field(description="String literal field"),
+                ]
+            ),
+            ValueError(
+                re.escape(
+                    "Pydantic model field literal cannot contain values corresponding to more than one non-NoneType type; got typing.Literal['a', 3] corresponding to [<class 'str'>, <class 'int'>] for field fieldStringLiteral"
+                )
             ),
         ),
         (
@@ -284,6 +298,22 @@ def test_convert_pydantic_model_to_schema_failed(
                     StandardSqlTypeNames.STRING,
                     mode=Mode.REQUIRED,
                     description="String enum field",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldStringLiteral=typing.Annotated[
+                    typing.Literal["a", "b", "c"],
+                    Field(description="String literal field"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldStringLiteral",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.REQUIRED,
+                    description="String literal field",
                 )
             ],
         ),

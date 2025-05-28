@@ -1,10 +1,11 @@
+import inspect
 from collections.abc import Iterable, Mapping
 from datetime import date, datetime, time
 from decimal import Decimal
 from enum import StrEnum
 from functools import partial, reduce
 from types import NoneType, UnionType
-from typing import Union, cast, get_args, get_origin
+from typing import Any, Literal, TypeAlias, Union, cast, get_args, get_origin
 
 from annotated_types import MaxLen
 from google.cloud.bigquery import SchemaField, StandardSqlTypeNames
@@ -19,6 +20,17 @@ class Mode(StrEnum):
     REQUIRED = "REQUIRED"
     NULLABLE = "NULLABLE"
     REPEATED = "REPEATED"
+
+
+_ClassInfo: TypeAlias = type[Any] | UnionType | tuple["_ClassInfo", ...]
+
+
+def _class_is_subclass(
+    obj: Any, base: _ClassInfo, *, excluded: _ClassInfo = tuple()
+) -> bool:
+    return (
+        inspect.isclass(obj) and issubclass(obj, base) and not issubclass(obj, excluded)
+    )
 
 
 def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField]:
@@ -61,13 +73,11 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
 
         origin = get_origin(field_type)
         # Try to strip field type from list, set, or Iterable and set mode to REPEATED
-        # Use __mro__ so that if the type is a subclass of Iterable, e.g., Generator, it's still counted. Except for Mapping, which should be treated as a struct type instead of REPEATED
-        if (
-            origin is not None
-            and set(origin.__mro__).intersection(
-                {tuple, list, set, frozenset, Iterable}
-            )
-            and not issubclass(origin, Mapping)
+        if _class_is_subclass(
+            origin,
+            tuple | list | set | frozenset | Iterable,
+            # Mapping is a subclass of Iterable, but we want to treat it like a dictionary
+            excluded=Mapping,
         ):
             mode = Mode.REPEATED
             # Use list here instead of set because Generator[int, None, int] is not the same as Generator[int]
@@ -85,6 +95,19 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
                         raise ValueError(
                             f"Pydantic model field type cannot contain a union of more than one non-NoneType type; got {field_type} for field {field_name}"
                         )
+
+        # Try to parse literal values if the type is typing.Literal
+        origin = get_origin(field_type)
+        if origin is Literal:
+            literal_args = get_args(field_type)
+            literal_types = set(map(type, literal_args))
+            match literal_types_except_none := list(literal_types - {NoneType}):
+                case [main_type]:
+                    field_type = main_type
+                case _:
+                    raise ValueError(
+                        f"Pydantic model field literal cannot contain values corresponding to more than one non-NoneType type; got {field_type} corresponding to {literal_types_except_none} for field {field_name}"
+                    )
 
         _SchemaField = partial(
             SchemaField,
@@ -104,26 +127,26 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
         origin = get_origin(field_type)
 
         # Infer BigQuery field type from field_type and origin
-        if origin is not None and issubclass(origin, dict | Mapping):
+        if _class_is_subclass(origin, dict | Mapping):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.JSON)
 
-        elif issubclass(field_type, BaseModel):
+        elif _class_is_subclass(field_type, BaseModel):
             # Recursively convert the inner model to schema for the struct field
             field_schema = _SchemaField(
                 field_type=StandardSqlTypeNames.STRUCT,
                 fields=convert_pydantic_model_to_schema(field_type),
             )
 
-        elif issubclass(field_type, bool):
+        elif _class_is_subclass(field_type, bool):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.BOOL)
 
-        elif issubclass(field_type, int):
+        elif _class_is_subclass(field_type, int):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.INT64)
 
-        elif issubclass(field_type, float):
+        elif _class_is_subclass(field_type, float):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.FLOAT64)
 
-        elif issubclass(field_type, Decimal):
+        elif _class_is_subclass(field_type, Decimal):
             precision = cast(int, field_pydantic_metadata.get("max_digits", 0))
             scale = cast(int, field_pydantic_metadata.get("decimal_places", 0))
             if precision <= 38 and scale <= 9:
@@ -143,7 +166,7 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
                     f"Precision and scale values are out of range. Maximum precision possible for Decimal is 76 and maximum scale is 38. Got precision={precision} and scale={scale}"
                 )
 
-        elif issubclass(field_type, str):
+        elif _class_is_subclass(field_type, str):
             max_length = _DEFAULT_VALUE
             for metadata in field_metadata:
                 if isinstance(metadata, MaxLen):
@@ -152,16 +175,16 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
                 field_type=StandardSqlTypeNames.STRING, max_length=max_length
             )
 
-        elif issubclass(field_type, bytes):
+        elif _class_is_subclass(field_type, bytes):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.BYTES)
 
-        elif issubclass(field_type, datetime):
+        elif _class_is_subclass(field_type, datetime):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.TIMESTAMP)
 
-        elif issubclass(field_type, date):
+        elif _class_is_subclass(field_type, date):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.DATE)
 
-        elif issubclass(field_type, time):
+        elif _class_is_subclass(field_type, time):
             field_schema = _SchemaField(field_type=StandardSqlTypeNames.TIME)
 
         else:

@@ -101,6 +101,8 @@ def convert_pydantic_model_to_schema(model: type[BaseModel]) -> list[SchemaField
         if origin is Literal:
             literal_args = get_args(field_type)
             literal_types = set(map(type, literal_args))
+            if NoneType in literal_types and mode != Mode.REPEATED:
+                mode = Mode.NULLABLE
             match literal_types_except_none := list(literal_types - {NoneType}):
                 case [main_type]:
                     field_type = main_type

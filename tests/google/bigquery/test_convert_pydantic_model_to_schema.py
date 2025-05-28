@@ -303,17 +303,33 @@ def test_convert_pydantic_model_to_schema_failed(
         ),
         (
             _Model(
-                fieldStringLiteral=typing.Annotated[
+                fieldStringLiteral1=typing.Annotated[
                     typing.Literal["a", "b", "c"],
-                    Field(description="String literal field"),
+                    Field(description="String literal field 1"),
                 ]
             ),
             [
                 SchemaField(
-                    "fieldStringLiteral",
+                    "fieldStringLiteral1",
                     StandardSqlTypeNames.STRING,
                     mode=Mode.REQUIRED,
-                    description="String literal field",
+                    description="String literal field 1",
+                )
+            ],
+        ),
+        (
+            _Model(
+                fieldStringLiteral2=typing.Annotated[
+                    typing.Literal["a", "b", "c", None],
+                    Field(description="String literal field 2"),
+                ]
+            ),
+            [
+                SchemaField(
+                    "fieldStringLiteral2",
+                    StandardSqlTypeNames.STRING,
+                    mode=Mode.NULLABLE,
+                    description="String literal field 2",
                 )
             ],
         ),

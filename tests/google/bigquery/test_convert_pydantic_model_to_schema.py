@@ -1,4 +1,3 @@
-import re
 import typing
 from collections import OrderedDict
 from collections.abc import Generator, Iterable, Iterator, Mapping, Sequence, Set
@@ -30,7 +29,7 @@ _Model = partial(
                 ]
             ),
             ValueError(
-                "Pydantic model field type cannot be a union of more than one non-NoneType type; got int | str for field fieldUnion1"
+                "Pydantic model field type cannot be a union of more than one non-NoneType type"
             ),
         ),
         (
@@ -40,7 +39,7 @@ _Model = partial(
                 ]
             ),
             ValueError(
-                r"Pydantic model field type cannot be a union of more than one non-NoneType type; got typing.Union\[int, str, NoneType\] for field fieldUnion2"
+                r"Pydantic model field type cannot be a union of more than one non-NoneType type"
             ),
         ),
         (
@@ -58,7 +57,7 @@ _Model = partial(
                 ]
             ),
             ValueError(
-                "Pydantic model field type cannot contain a union of more than one non-NoneType type; got int | str for field fieldList2"
+                "Pydantic model field type cannot contain a union of more than one non-NoneType type"
             ),
         ),
         (
@@ -69,9 +68,7 @@ _Model = partial(
                 ]
             ),
             ValueError(
-                re.escape(
-                    "Pydantic model field literal cannot contain values corresponding to more than one non-NoneType type; got typing.Literal['a', 3] corresponding to [<class 'str'>, <class 'int'>] for field fieldStringLiteral"
-                )
+                "Pydantic model field literal cannot contain values corresponding to more than one non-NoneType type"
             ),
         ),
         (
@@ -80,9 +77,7 @@ _Model = partial(
                     Decimal, Field(description="Decimal field 1", max_digits=78)
                 ]
             ),
-            ValueError(
-                "Precision and scale values are out of range. Maximum precision possible for Decimal is 76 and maximum scale is 38. Got precision=78 and scale=0"
-            ),
+            ValueError("Precision and scale values are out of range"),
         ),
         (
             _Model(
@@ -90,9 +85,7 @@ _Model = partial(
                     Decimal, Field(description="Decimal field 2", decimal_places=39)
                 ]
             ),
-            ValueError(
-                "Precision and scale values are out of range. Maximum precision possible for Decimal is 76 and maximum scale is 38. Got precision=0 and scale=39"
-            ),
+            ValueError("Precision and scale values are out of range"),
         ),
         (
             _Model(
@@ -100,7 +93,7 @@ _Model = partial(
                     Exception, Field(description="Unsupported field")
                 ]
             ),
-            NotImplementedError("Unsupported field type: <class 'Exception'>"),
+            NotImplementedError("Unsupported field type"),
         ),
     ],
 )

@@ -1,6 +1,6 @@
 [project]
 name = "yootils"
-version = "0.2.3"
+version = "0.2.4"
 description = "Stuff I often need."
 authors = [
     { name = "Duy Nguyen", email = "hello.duyknguyen@gmail.com" }

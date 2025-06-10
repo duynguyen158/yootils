@@ -14,18 +14,17 @@ from yootils.jsonschema.pydantic_utils import (
     Number,
     Object,
     String,
-    Type,
     convert_json_schema_to_pydantic_model,
     convert_json_schema_to_pydantic_model_async,
 )
 
-PartialObject = partial(Object, type=Type.OBJECT, description="This is an object.")
-PartialString = partial(String, type=Type.STRING, description="This is a string.")
-PartialNumber = partial(Number, type=Type.NUMBER, description="This is a number.")
-PartialInteger = partial(Integer, type=Type.INTEGER, description="This is an integer.")
-PartialBoolean = partial(Boolean, type=Type.BOOLEAN, description="This is a boolean.")
-PartialArray = partial(Array, type=Type.ARRAY, description="This is an array.")
-PartialEnum = partial(Enum, type=Type.STRING, description="This is an enum.")
+PartialObject = partial(Object, description="This is an object.")
+PartialString = partial(String, description="This is a string.")
+PartialNumber = partial(Number, description="This is a number.")
+PartialInteger = partial(Integer, description="This is an integer.")
+PartialBoolean = partial(Boolean, description="This is a boolean.")
+PartialArray = partial(Array, description="This is an array.")
+PartialEnum = partial(Enum, description="This is an enum.")
 
 CONVERSION_TEST_PARAMETERS = (
     "object,validation_data",

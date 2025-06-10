@@ -30,9 +30,6 @@ test: # Run the tests
 # RELEASE
 .PHONY: bump-% show-version
 
-show-version: # Show the current version
-	@eval $(shell uvx bumpver show -n --environ) && echo $$PEP440_VERSION
-
 bump-patch: # Bump the patch version
 	uv version --bump patch
 

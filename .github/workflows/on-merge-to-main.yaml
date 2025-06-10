@@ -30,6 +30,7 @@ jobs:
         run: |
           git fetch --tags
           export PEP440_VERSION=$(uv version --short)
+          echo "Version is $PEP440_VERSION"
           if git tag -l | grep -q "^$PEP440_VERSION$"; then
             echo "version_bumped=false" >> $GITHUB_OUTPUT
             echo "version=$PEP440_VERSION" >> $GITHUB_OUTPUT

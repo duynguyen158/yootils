@@ -21,7 +21,7 @@ from datamodel_code_generator import (
 from pydantic import BaseModel, Field, model_validator
 
 
-class Type(StrEnum):
+class _Type(StrEnum):
     # Primitive types
     STRING = "string"
     NUMBER = "number"
@@ -41,7 +41,9 @@ class String(_BaseSchema):
     Pydantic model representing a JSON Schema string.
     """
 
-    type: Annotated[Literal[Type.STRING], Field(default=Type.STRING)]
+    # default=_Type.STRING tells Pydantic to add the default to the type metadata and use it during instance creation/validation
+    # = _Type.STRING saves the developer from having to specify the type manually during instance creation
+    type: Annotated[Literal[_Type.STRING], Field(default=_Type.STRING)] = _Type.STRING
 
 
 class Enum(String):
@@ -57,7 +59,7 @@ class Number(_BaseSchema):
     Pydantic model representing a JSON Schema number.
     """
 
-    type: Annotated[Literal[Type.NUMBER], Field(default=Type.NUMBER)]
+    type: Annotated[Literal[_Type.NUMBER], Field(default=_Type.NUMBER)] = _Type.NUMBER
 
 
 class Integer(_BaseSchema):
@@ -65,7 +67,9 @@ class Integer(_BaseSchema):
     Pydantic model representing a JSON Schema integer.
     """
 
-    type: Annotated[Literal[Type.INTEGER], Field(default=Type.INTEGER)]
+    type: Annotated[Literal[_Type.INTEGER], Field(default=_Type.INTEGER)] = (
+        _Type.INTEGER
+    )
 
 
 class Boolean(_BaseSchema):
@@ -73,7 +77,9 @@ class Boolean(_BaseSchema):
     Pydantic model representing a JSON Schema boolean.
     """
 
-    type: Annotated[Literal[Type.BOOLEAN], Field(default=Type.BOOLEAN)]
+    type: Annotated[Literal[_Type.BOOLEAN], Field(default=_Type.BOOLEAN)] = (
+        _Type.BOOLEAN
+    )
 
 
 class Object(_BaseSchema):
@@ -81,7 +87,7 @@ class Object(_BaseSchema):
     Pydantic model representing a JSON Schema object.
     """
 
-    type: Annotated[Literal[Type.OBJECT], Field(default=Type.OBJECT)]
+    type: Annotated[Literal[_Type.OBJECT], Field(default=_Type.OBJECT)] = _Type.OBJECT
     properties: dict[
         str,
         String | Number | Integer | Boolean | Enum | Object | Array,
@@ -102,7 +108,7 @@ class Array(_BaseSchema):
     Pydantic model representing a JSON Schema array.
     """
 
-    type: Annotated[Literal[Type.ARRAY], Field(default=Type.ARRAY)]
+    type: Annotated[Literal[_Type.ARRAY], Field(default=_Type.ARRAY)] = _Type.ARRAY
     items: String | Number | Integer | Boolean | Enum | Object | Array
 
 

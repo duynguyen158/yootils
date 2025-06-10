@@ -34,10 +34,10 @@ show-version: # Show the current version
 	@eval $(shell uvx bumpver show -n --environ) && echo $$PEP440_VERSION
 
 bump-patch: # Bump the patch version
-	uvx bumpver update --patch
+	uv version --bump patch
 
 bump-minor: # Bump the minor version
-	uvx bumpver update --minor
+	uv version --bump minor
 
 bump-major: # Bump the major version
-	uvx bumpver update --major
+	uv version --bump major

@@ -21,7 +21,7 @@ def tick_step():
 
 @pytest.fixture(scope="module")
 def partitions_start():
-    return datetime(2024, 1, 1, 0, 0, 0)
+    return datetime(2025, 1, 1, 0, 0, 0)
 
 
 @pytest.fixture(scope="module")
@@ -42,7 +42,6 @@ class AssetException(Exception):
 class Tick:
     time: datetime
     partitions_requested: set[str]
-    materialize: bool = False
 
 
 @pytest.mark.parametrize(
@@ -58,19 +57,16 @@ class Tick:
                 Tick(
                     time=datetime(2025, 1, 1, 0, 0, 0),
                     partitions_requested={"2025-01-01-00:00"},
-                    materialize=True,
                 ),
                 Tick(time=datetime(2025, 1, 1, 0, 20, 0), partitions_requested=set()),
                 Tick(time=datetime(2025, 1, 1, 0, 40, 0), partitions_requested=set()),
                 Tick(
                     time=datetime(2025, 1, 1, 1, 0, 0),
                     partitions_requested={"2025-01-01-01:00"},
-                    materialize=True,
                 ),
                 Tick(
                     time=datetime(2025, 1, 1, 2, 0, 0),
                     partitions_requested={"2025-01-01-02:00"},
-                    materialize=True,
                 ),
             ],
         ),
@@ -82,78 +78,160 @@ class Tick:
                 Tick(
                     time=datetime(2025, 1, 1, 0, 0, 0),
                     partitions_requested={"2025-01-01-00:00"},
-                    materialize=True,
                 ),
                 Tick(
                     time=datetime(2025, 1, 1, 1, 0, 0),
                     partitions_requested={"2025-01-01-01:00"},  # This will fail
-                    materialize=True,
                 ),
                 Tick(
                     time=datetime(2025, 1, 1, 1, 20, 0),
                     partitions_requested={
                         "2025-01-01-01:00"
                     },  # Next cron schedule, this will be re-requested
-                    materialize=True,
                 ),
                 Tick(
                     time=datetime(2025, 1, 1, 1, 40, 0),
                     partitions_requested={
                         "2025-01-01-01:00"
                     },  # Next cron schedule, this will be re-requested
-                    materialize=True,
                 ),
                 Tick(
                     time=datetime(2025, 1, 1, 2, 0, 0),
                     partitions_requested={
                         "2025-01-01-02:00"
                     },  # Only new partition is requested (and the failed one isn't) since we're not looking back
-                    materialize=True,
                 ),
             ],
         ),
-        # (
-        #     on_cron_persistent(CRON_SCHEDULE, lookback_start=timedelta(hours=2)),
-        #     {"2025-01-01-00:00" ,"2025-01-01-01:00"},  # Fail this partition
-        #     [
-        #         Tick(time=datetime(2024, 12, 31, 23, 40), partitions_requested=set()),
-        #         Tick(
-        #             time=datetime(2025, 1, 1, 0, 0, 0),
-        #             partitions_requested={"2025-01-01-00:00"}, # This will fail
-        #             materialize=True,
-        #         ),
-        #         Tick(time=datetime(2025, 1, 1, 0, 0, 30), partitions_requested=set()),
-        #         Tick(
-        #             time=datetime(2025, 1, 1, 1, 0, 0),
-        #             partitions_requested={"2025-01-01-01:00"},  # This will fail
-        #             materialize=True,
-        #         ),
-        #         Tick(
-        #             time=datetime(2025, 1, 1, 1, 0, 30),
-        #             partitions_requested=set(),
-        #         ),
-        #         Tick(
-        #             time=datetime(2025, 1, 1, 1, 20, 0),
-        #             partitions_requested={
-        #                 "2025-01-01-01:00"
-        #             },  # Next cron schedule, this will be re-requested
-        #             materialize=True,
-        #         ),
-        #         Tick(
-        #             time=datetime(2025, 1, 1, 1, 20, 30),
-        #             partitions_requested=set(),
-        #         ),
-        #         Tick(
-        #             time=datetime(2025, 1, 1, 2, 0, 0),
-        #             partitions_requested={
-        #                 "2025-01-01-02:00"
-        #             },  # Only new partition is requested (and the failed one isn't) since we're not looking back
-        #             materialize=True,
-        #         ),
-        #     ],
-        # ),
+        (
+            on_cron_persistent(CRON_SCHEDULE, lookback_start=timedelta(hours=2)),
+            {"2025-01-01-00:00", "2025-01-01-01:00"},  # Fail these partitions
+            [
+                Tick(time=datetime(2024, 12, 31, 23, 40), partitions_requested=set()),
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 0, 0),
+                    partitions_requested={"2025-01-01-00:00"},  # This will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 20, 0),
+                    partitions_requested={"2025-01-01-00:00"},  # This will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 40, 0),
+                    partitions_requested={"2025-01-01-00:00"},  # This will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 20, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 40, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-01:00",  # This will fail
+                        "2025-01-01-02:00",
+                    },
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 20, 0),
+                    partitions_requested={
+                        "2025-01-01-01:00",  # This will fail
+                    },
+                ),
+            ],
+        ),
+        (
+            on_cron_persistent(
+                CRON_SCHEDULE,
+                lookback_start=timedelta(hours=3),
+                lookback_end=timedelta(hours=1),
+            ),
+            {"2025-01-01-00:00", "2025-01-01-01:00"},  # Fail these partitions
+            [
+                Tick(time=datetime(2024, 12, 31, 23, 40), partitions_requested=set()),
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 0, 0),
+                    partitions_requested=set(),  # Since we implement a one-hour lag, this won't be requested till the next hour
+                ),
+                Tick(time=datetime(2025, 1, 1, 0, 20, 0), partitions_requested=set()),
+                Tick(time=datetime(2025, 1, 1, 0, 40, 0), partitions_requested=set()),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",  # This will fail
+                    },
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 20, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",  # This will fail
+                    },
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 40, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",  # This will fail
+                    },
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 20, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 40, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 3, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-01:00",  # This will fail
+                        "2025-01-01-02:00",
+                    },
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 3, 20, 0),
+                    partitions_requested={
+                        "2025-01-01-01:00",  # This will fail
+                    },
+                ),
+            ],
+        ),
     ],
-    ids=["on_cron_persistent_no_lookback", "on_cron_persistent_no_lookback_failed"],
+    ids=[
+        "on_cron_persistent_no_lookback",
+        "on_cron_persistent_no_lookback_failed",
+        "on_cron_persistent_with_lookback",
+        "on_cron_persistent_with_lagged_lookback",
+    ],
 )
 def test_automation_condition_single_asset(
     instance: dg.DagsterInstance,
@@ -193,13 +271,12 @@ def test_automation_condition_single_asset(
             partition_keys_requested = result.get_requested_partitions(dg.AssetKey("a"))
             assert partition_keys_requested == tick.partitions_requested
 
-            if tick.materialize:
-                for partition_key in partition_keys_requested:
-                    dg.materialize_to_memory(
-                        [a],
-                        instance=instance,
-                        partition_key=partition_key,
-                        raise_on_error=False,
-                    )
+            for partition_key in partition_keys_requested:
+                dg.materialize_to_memory(
+                    [a],
+                    instance=instance,
+                    partition_key=partition_key,
+                    raise_on_error=False,
+                )
 
         timestamp += tick_step

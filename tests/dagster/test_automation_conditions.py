@@ -45,6 +45,39 @@ class Tick:
 
 
 @pytest.mark.parametrize(
+    "lookback_start, lookback_end, exception",
+    [
+        (
+            None,
+            timedelta(hours=1),
+            ValueError(
+                "If lookback_end is specified, lookback_start must also be specified."
+            ),
+        ),
+        (
+            timedelta(days=1),
+            timedelta(days=1),
+            ValueError("lookback_start must precede lookback_end"),
+        ),
+        (
+            timedelta(days=1),
+            timedelta(days=2),
+            ValueError("lookback_start must precede lookback_end"),
+        ),
+    ],
+)
+def test_on_cron_persistent_lookback_exceptions(
+    lookback_start: timedelta | None,
+    lookback_end: timedelta | None,
+    exception: Exception,
+) -> None:
+    with pytest.raises(type(exception), match=str(exception)):
+        on_cron_persistent(
+            CRON_SCHEDULE, lookback_start=lookback_start, lookback_end=lookback_end
+        )
+
+
+@pytest.mark.parametrize(
     "automation_condition,partition_keys_to_fail,ticks_to_check",
     [
         (
@@ -233,7 +266,7 @@ class Tick:
         "on_cron_persistent_with_lagged_lookback",
     ],
 )
-def test_automation_condition_single_asset(
+def test_single_asset(
     instance: dg.DagsterInstance,
     tick_step: timedelta,
     partitions_start: datetime,

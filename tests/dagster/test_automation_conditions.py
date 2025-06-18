@@ -1,6 +1,7 @@
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from functools import partial
 from typing import Any
 
 import dagster as dg
@@ -9,9 +10,12 @@ from dagster._core.definitions.declarative_automation.automation_condition_teste
     EvaluateAutomationConditionsResult,
 )
 
-from yootils.dagster.automation_conditions import on_cron_persistent
+from yootils.dagster.automation_conditions import (
+    eager_persistent,
+    on_cron_persistent as _on_cron_persistent,
+)
 
-CRON_SCHEDULE = "*/20 * * * *"
+on_cron_persistent = partial(_on_cron_persistent, cron_schedule="*/20 * * * *")
 
 
 @pytest.fixture(scope="module")
@@ -45,9 +49,10 @@ class Tick:
 
 
 @pytest.mark.parametrize(
-    "lookback_start, lookback_end, exception",
+    "automation_condition_factory, lookback_start, lookback_end, exception",
     [
         (
+            on_cron_persistent,
             None,
             timedelta(hours=1),
             ValueError(
@@ -55,33 +60,56 @@ class Tick:
             ),
         ),
         (
+            on_cron_persistent,
             timedelta(days=1),
             timedelta(days=1),
             ValueError("lookback_start must precede lookback_end"),
         ),
         (
+            on_cron_persistent,
+            timedelta(days=1),
+            timedelta(days=2),
+            ValueError("lookback_start must precede lookback_end"),
+        ),
+        (
+            eager_persistent,
+            None,
+            timedelta(hours=1),
+            ValueError(
+                "If lookback_end is specified, lookback_start must also be specified."
+            ),
+        ),
+        (
+            eager_persistent,
+            timedelta(days=1),
+            timedelta(days=1),
+            ValueError("lookback_start must precede lookback_end"),
+        ),
+        (
+            eager_persistent,
             timedelta(days=1),
             timedelta(days=2),
             ValueError("lookback_start must precede lookback_end"),
         ),
     ],
 )
-def test_on_cron_persistent_lookback_exceptions(
+def test_lookback_exceptions(
+    automation_condition_factory: Callable[..., dg.AutomationCondition[Any]],
     lookback_start: timedelta | None,
     lookback_end: timedelta | None,
     exception: Exception,
 ) -> None:
     with pytest.raises(type(exception), match=str(exception)):
-        on_cron_persistent(
-            CRON_SCHEDULE, lookback_start=lookback_start, lookback_end=lookback_end
+        automation_condition_factory(
+            lookback_start=lookback_start, lookback_end=lookback_end
         )
 
 
 @pytest.mark.parametrize(
-    "automation_condition,partition_keys_to_fail,ticks_to_check",
+    "automation_condition, partition_keys_to_fail, ticks_to_check",
     [
         (
-            on_cron_persistent(CRON_SCHEDULE),
+            on_cron_persistent(),
             set(),
             [
                 Tick(
@@ -104,7 +132,7 @@ def test_on_cron_persistent_lookback_exceptions(
             ],
         ),
         (
-            on_cron_persistent(CRON_SCHEDULE),
+            on_cron_persistent(),
             {"2025-01-01-01:00"},  # Fail this partition
             [
                 Tick(time=datetime(2024, 12, 31, 23, 40), partitions_requested=set()),
@@ -137,7 +165,7 @@ def test_on_cron_persistent_lookback_exceptions(
             ],
         ),
         (
-            on_cron_persistent(CRON_SCHEDULE, lookback_start=timedelta(hours=2)),
+            on_cron_persistent(lookback_start=timedelta(hours=2)),
             {"2025-01-01-00:00", "2025-01-01-01:00"},  # Fail these partitions
             [
                 Tick(time=datetime(2024, 12, 31, 23, 40), partitions_requested=set()),
@@ -191,7 +219,6 @@ def test_on_cron_persistent_lookback_exceptions(
         ),
         (
             on_cron_persistent(
-                CRON_SCHEDULE,
                 lookback_start=timedelta(hours=3),
                 lookback_end=timedelta(hours=1),
             ),

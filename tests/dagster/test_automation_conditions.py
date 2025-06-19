@@ -478,7 +478,7 @@ def test_with_asset_no_deps(
             start_date=partitions_start, end_offset=1
         ),
     )
-    def a(context: dg.AssetExecutionContext) -> None:
+    def asset_single(context: dg.AssetExecutionContext) -> None:
         if (partition_key := context.partition_key) in partition_keys_to_fail:
             raise AssetException(f"Failed on purpose for partition {partition_key}")
 
@@ -489,7 +489,7 @@ def test_with_asset_no_deps(
 
     while len(_ticks_to_check) > 0:
         result = dg.evaluate_automation_conditions(
-            defs=[a],
+            defs=[asset_single],
             instance=instance,
             evaluation_time=timestamp,
             cursor=result.cursor if result is not None else None,
@@ -498,12 +498,14 @@ def test_with_asset_no_deps(
         if timestamp in _ticks_to_check:
             tick = _ticks_to_check.pop(timestamp)
 
-            partition_keys_requested = result.get_requested_partitions(dg.AssetKey("a"))
+            partition_keys_requested = result.get_requested_partitions(
+                dg.AssetKey("asset_single")
+            )
             assert partition_keys_requested == tick.partitions_requested
 
             for partition_key in partition_keys_requested:
                 dg.materialize_to_memory(
-                    [a],
+                    [asset_single],
                     instance=instance,
                     partition_key=partition_key,
                     raise_on_error=False,

@@ -20,7 +20,7 @@ on_cron_persistent = partial(_on_cron_persistent, cron_schedule="*/20 * * * *")
 
 @pytest.fixture(scope="module")
 def tick_step():
-    return timedelta(seconds=300)
+    return timedelta(minutes=5)
 
 
 @pytest.fixture(scope="module")
@@ -285,15 +285,185 @@ def test_lookback_exceptions(
                 ),
             ],
         ),
+        (
+            eager_persistent(),
+            set(),
+            [
+                # No tick to check before 2025-01-01 because realistically eager only kicks in after the timestamp of the first partition
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 0, 0),
+                    partitions_requested=set(),  # Won't trigger because this is when the condition is applied
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 5, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00"
+                    },  # First partition is instead triggered at next tick
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 0, 0),
+                    partitions_requested={"2025-01-01-01:00"},
+                ),
+                Tick(time=datetime(2025, 1, 1, 1, 5, 0), partitions_requested=set()),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 0, 0),
+                    partitions_requested={"2025-01-01-02:00"},
+                ),
+            ],
+        ),
+        (
+            eager_persistent(),
+            {"2025-01-01-00:00", "2025-01-01-01:00"},
+            [
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 0, 0),
+                    partitions_requested=set(),
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 5, 0),
+                    partitions_requested={"2025-01-01-00:00"},  # This will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 10, 0),
+                    partitions_requested={"2025-01-01-00:00"},  # This will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-01:00"
+                    },  # This will fail. Previous partition is ignore since we're not looking back.
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 5, 0),
+                    partitions_requested={
+                        "2025-01-01-01:00"
+                    },  # This will fail. Previous partition is ignore since we're not looking back.
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 0, 0),
+                    partitions_requested={"2025-01-01-02:00"},
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 5, 0),
+                    partitions_requested=set(),
+                ),
+            ],
+        ),
+        (
+            eager_persistent(lookback_start=timedelta(hours=2)),
+            {"2025-01-01-00:00", "2025-01-01-01:00"},
+            [
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 0, 0),
+                    partitions_requested=set(),
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 5, 0),
+                    partitions_requested={"2025-01-01-00:00"},  # This will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 5, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-01:00",  # This will fail
+                        "2025-01-01-02:00",
+                    },  # 00:00 is dropped since it's no longer in the window
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 5, 0),
+                    partitions_requested={"2025-01-01-01:00"},
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 3, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-03:00"
+                    },  # 01:00 is dropped since it's no longer in the window
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 3, 5, 0),
+                    partitions_requested=set(),
+                ),
+            ],
+        ),
+        (
+            eager_persistent(
+                lookback_start=timedelta(hours=3), lookback_end=timedelta(hours=1)
+            ),
+            {"2025-01-01-00:00", "2025-01-01-01:00"},
+            [
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 0, 0),
+                    partitions_requested=set(),
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 0, 5, 0),
+                    partitions_requested=set(),  # Since we implement a one-hour lag, this won't be requested till the next hour
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                    },  # This will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 1, 5, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                    },  # This will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 2, 5, 0),
+                    partitions_requested={
+                        "2025-01-01-00:00",
+                        "2025-01-01-01:00",
+                    },  # These will fail
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 3, 0, 0),
+                    partitions_requested={
+                        "2025-01-01-01:00",  # This will fail
+                        "2025-01-01-02:00",
+                    },  # 00:00 is dropped since it's no longer in the window
+                ),
+                Tick(
+                    time=datetime(2025, 1, 1, 3, 5, 0),
+                    partitions_requested={"2025-01-01-01:00"},  # This will fail
+                ),
+            ],
+        ),
     ],
     ids=[
         "on_cron_persistent_no_lookback",
         "on_cron_persistent_no_lookback_failed",
         "on_cron_persistent_with_lookback",
         "on_cron_persistent_with_lagged_lookback",
+        "eager_persistent_no_lookback",
+        "eager_persistent_no_lookback_failed",
+        "eager_persistent_with_lookback",
+        "eager_persistent_with_lagged_lookback",
     ],
 )
-def test_single_asset(
+def test_with_asset_no_deps(
     instance: dg.DagsterInstance,
     tick_step: timedelta,
     partitions_start: datetime,

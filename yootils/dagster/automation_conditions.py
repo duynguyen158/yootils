@@ -41,18 +41,19 @@ def on_cron_persistent(
     window = _validate_lookback_range(lookback_start, lookback_end)
 
     return (
-        AutomationCondition.on_cron(cron_schedule, cron_timezone).replace(
-            AutomationCondition.in_latest_time_window(),
-            window,
-        )
+        window
+        & AutomationCondition.cron_tick_passed(
+            cron_schedule, cron_timezone
+        ).since_last_handled()
+        & AutomationCondition.all_deps_updated_since_cron(cron_schedule, cron_timezone)
         & ~AutomationCondition.in_progress()
         & (AutomationCondition.missing() | AutomationCondition.execution_failed())
     ).with_label("on_cron_persistent")
 
 
 def eager_persistent(
-    lookback_start: timedelta | None, lookback_end: timedelta | None
-) -> AutomationCondition[T_EntityKey]:
+    lookback_start: timedelta | None = None, lookback_end: timedelta | None = None
+) -> AndAutomationCondition[T_EntityKey]:
     """
     Returns an AutomationCondition which will cause a target to be executed if any of
     its dependencies update, and will execute missing partitions if they become missing
@@ -67,20 +68,13 @@ def eager_persistent(
     window = _validate_lookback_range(lookback_start, lookback_end)
 
     return (
-        AutomationCondition.eager()
-        .replace(
-            AutomationCondition.in_latest_time_window(),
-            window,
+        window
+        & (
+            AutomationCondition.missing().since_last_handled()
+            | AutomationCondition.any_deps_updated().since_last_handled()
+            | AutomationCondition.execution_failed()
         )
-        .replace(
-            (
-                AutomationCondition.newly_missing()
-                | AutomationCondition.any_deps_updated()
-            ).since_last_handled(),
-            (
-                AutomationCondition.newly_missing()
-                | AutomationCondition.any_deps_updated()
-                | AutomationCondition.execution_failed().newly_true()
-            ).since_last_handled(),
-        )
-    )
+        & ~AutomationCondition.any_deps_missing()
+        & ~AutomationCondition.any_deps_in_progress()
+        & ~AutomationCondition.in_progress()
+    ).with_label("eager_persistent")

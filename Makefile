@@ -12,16 +12,18 @@ help: # Show help for each of the Makefile recipes
 
 install: # Install the project dependencies
 	uv sync --all-groups --all-extras
+	uv tool install ruff --upgrade
+	uv tool install pyright --upgrade
 
 # DEVELOPMENT
 .PHONY: format lint test
 
 format: # Format the code
-	uvx ruff format
-	uvx ruff check --fix
+	uv tool run ruff format
+	uv tool run ruff check --fix
 
 lint: # Lint the code
-	uvx pyright
+	uv tool run pyright
 
 test: # Run the tests
 	@PYTHON_MAJOR_MINOR_VERSION=$(shell uv run python -V | grep -oE "[0-9]+\.[0-9]+") \

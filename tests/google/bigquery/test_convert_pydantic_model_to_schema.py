@@ -520,7 +520,7 @@ def test_convert_pydantic_model_to_schema_failed(
         (
             _Model(
                 fieldOptional3=typing.Annotated[
-                    typing.Optional[int], Field(description="Optional field 3")  # noqa: UP007
+                    typing.Optional[int], Field(description="Optional field 3")  # noqa: UP045
                 ]
             ),
             [

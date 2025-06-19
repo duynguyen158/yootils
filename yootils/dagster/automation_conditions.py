@@ -37,6 +37,15 @@ def on_cron_persistent(
     Returns an AutomationCondition that triggers asset execution on a given cron schedule until the asset is successfully materialized.
 
     If the asset is time-partitioned, unlike `AutomationCondition.on_cron`, multiple time partitions can be considered by setting `lookback_start` and `lookback_end` to the desired timedelta values (relative to the partition time).
+
+    Args:
+        cron_schedule (str): Cron schedule for the automation condition.
+        cron_timezone (str): Timezone for the cron schedule. Defaults to "UTC".
+        lookback_start (timedelta | None): Start of the lookback window. Defaults to None.
+        lookback_end (timedelta | None): End of the lookback window. Defaults to None.
+
+    Returns:
+        AndAutomationCondition[T_EntityKey]: The returned AutomationCondition.
     """
     window = _validate_lookback_range(lookback_start, lookback_end)
 
@@ -64,6 +73,13 @@ def eager_persistent(
     targets that just failed.
 
     For time partitioned assets, unlike `AutomationCondition.eager`, multiple time partitions can be considered by setting `lookback_start` and `lookback_end` to the desired timedelta values (relative to the partition time).
+
+    Args:
+        lookback_start (timedelta | None): Start of the lookback window. Defaults to None.
+        lookback_end (timedelta | None): End of the lookback window. Defaults to None.
+
+    Returns:
+        AndAutomationCondition[T_EntityKey]: The returned AutomationCondition.
     """
     window = _validate_lookback_range(lookback_start, lookback_end)
 

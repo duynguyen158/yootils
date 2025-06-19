@@ -1780,7 +1780,7 @@ wheels = [
 
 [[package]]
 name = "yootils"
-version = "0.2.4"
+version = "0.2.5"
 source = { virtual = "." }
 
 [package.optional-dependencies]

@@ -82,6 +82,8 @@ async def invoke_chat_model(
     """
     Asynchronously calls an LLM in a single invocation with minimal requirements -- a model ID to use and a prompt.
 
+    Make sure you've installed the appropriate LangChain package for the model provider you're using, e.g., `pip install langchain-google-vertexai` to access Google's Gemini models.
+
     Args:
         model_id (str): ID of the model to use, e.g., "gemini-2.0-flash-001".
         prompt (str | Sequence[tuple[Literal["system", "human", "ai"], str | list[dict[str, str]]]] | ChatPromptTemplate): The prompt to use. Can either be a string, a sequence of tuples fit to feed into `langchain.chat_models.ChatPromptTemplate`, or a `langchain.chat_models.ChatPromptTemplate` instance.

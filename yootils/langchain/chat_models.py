@@ -1,5 +1,5 @@
 from collections.abc import Mapping, Sequence
-from typing import Annotated, Any, Literal, TypeVar, cast
+from typing import Annotated, Any, Literal, TypeVar, cast, overload
 
 from langchain.chat_models import init_chat_model
 from langchain_community.callbacks.openai_info import (
@@ -20,6 +20,46 @@ class Output(BaseModel):
 
 class NoResult(Exception):
     pass
+
+
+@overload
+async def invoke_chat_model(
+    model_id: str,
+    prompt: str
+    | Sequence[tuple[Literal["system", "human", "ai"], str | list[dict[str, str]]]]
+    | ChatPromptTemplate,
+    *,
+    model_provider: str | None = None,
+    configurable_fields: Literal["any"] | list[str] | tuple[str, ...] | None = None,
+    config_prefix: str | None = None,
+    model_kwargs: Mapping[str, Any] = dict(),
+    output_structure: type[_O] = Output,
+    output_structure_kwargs: Mapping[str, Any] = dict(),
+    prompt_inputs: Mapping[str, Any] = dict(),
+    use_default_callback_handler: Literal[True] = True,
+    invoke_config: RunnableConfig | None = None,
+    invoke_kwargs: Mapping[str, Any] = dict(),
+) -> tuple[_O, OpenAICallbackHandler]: ...
+
+
+@overload
+async def invoke_chat_model(
+    model_id: str,
+    prompt: str
+    | Sequence[tuple[Literal["system", "human", "ai"], str | list[dict[str, str]]]]
+    | ChatPromptTemplate,
+    *,
+    model_provider: str | None = None,
+    configurable_fields: Literal["any"] | list[str] | tuple[str, ...] | None = None,
+    config_prefix: str | None = None,
+    model_kwargs: Mapping[str, Any] = dict(),
+    output_structure: type[_O] = Output,
+    output_structure_kwargs: Mapping[str, Any] = dict(),
+    prompt_inputs: Mapping[str, Any] = dict(),
+    use_default_callback_handler: Literal[False] = False,
+    invoke_config: RunnableConfig | None = None,
+    invoke_kwargs: Mapping[str, Any] = dict(),
+) -> _O: ...
 
 
 async def invoke_chat_model(
@@ -49,7 +89,7 @@ async def invoke_chat_model(
         configurable_fields (Literal["any"] | list[str] | tuple[str, ...] | None): Configurable fields for the model, as required by `langchain.chat_models.init_chat_model`. Defaults to None.
         config_prefix (str | None): Configuration prefix for the model, as required by `langchain.chat_models.init_chat_model`. Defaults to None.
         model_kwargs (Mapping[str, Any]): Keyword arguments to pass `langchain.chat_models.init_chat_model`. Defaults to an empty dictionary. This would be, for example, the place to specify the desired model temperature and max output tokens.
-        output_structure (type[_O]): Structure of the output. Defaults to Response.
+        output_structure (type[_O]): Structure of the output. Defaults to Output.
         output_structure_kwargs (Mapping[str, Any]): Keyword arguments for the output structure. Defaults to an empty dictionary. This would be, for example, the place to specify the output structure method such as `json_mode`.
         prompt_inputs (Mapping[str, Any]): Inputs for the prompt during a LangChain `ainvoke` chain call, if the prompt is a LangChain template holding `{}` references to variables. Defaults to an empty dictionary.
         use_default_callback_handler (bool): Whether to use the default callback handler returned by this function. Defaults to True.
@@ -104,16 +144,16 @@ async def invoke_chat_model(
                 {**invoke_config, "callbacks": [*callbacks, default_callback_handler]}
             )
     else:
-        _invoke_config = None
+        _invoke_config = invoke_config
 
-    response = await chain.ainvoke({**prompt_inputs}, _invoke_config, **invoke_kwargs)
+    output = await chain.ainvoke({**prompt_inputs}, _invoke_config, **invoke_kwargs)
 
-    if response is None:
+    if output is None:
         raise NoResult(
-            "Chain result is None. This is likely due to using a model with not enough output tokens. Try using a different model or increasing the output token limit."
+            "Chain output is None. This is likely due to using a model with not enough output tokens. Try using a different model or increasing the output token limit."
         )
 
     if use_default_callback_handler:
-        return response, default_callback_handler
+        return output, default_callback_handler
 
-    return response
+    return output

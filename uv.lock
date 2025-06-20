@@ -2175,11 +2175,8 @@ wheels = [
 
 [[package]]
 name = "yootils"
-version = "0.2.5"
+version = "0.2.6"
 source = { virtual = "." }
-dependencies = [
-    { name = "langchain-community" },
-]
 
 [package.optional-dependencies]
 dagster = [
@@ -2204,6 +2201,7 @@ jsonschema = [
 ]
 langchain = [
     { name = "langchain" },
+    { name = "langchain-community" },
     { name = "langchain-core" },
     { name = "pydantic" },
 ]
@@ -2230,7 +2228,7 @@ requires-dist = [
     { name = "google-auth", marker = "extra == 'google'", specifier = ">=2.34.0" },
     { name = "google-cloud-bigquery", marker = "extra == 'google'", specifier = ">=3.33.0" },
     { name = "langchain", marker = "extra == 'langchain'", specifier = ">=0.3.25" },
-    { name = "langchain-community", specifier = ">=0.3.25" },
+    { name = "langchain-community", marker = "extra == 'langchain'", specifier = ">=0.3.25" },
     { name = "langchain-core", marker = "extra == 'langchain'", specifier = ">=0.3.65" },
     { name = "pydantic", marker = "extra == 'google'", specifier = ">=2.11.4" },
     { name = "pydantic", marker = "extra == 'jsonschema'", specifier = ">=2.11.4" },
